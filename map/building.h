@@ -17,19 +17,15 @@ struct Building {
 	int x;
 	int y;
 	
-	// constructor
-	Building(char t, int u, int c, int xval, int yval);
+	//updates maxVal based on the type of building
+	void updateMax();
 };
 
 
-// constructor method, stores maxVal depending on the character received
-// create a building object by calling:
-// Building buildingName(type, units, control, x, y)
-Building::Building(char t, int u, int c, int xval, int yval):
-type(t), units(u), control(c), x(xval), y(yval) {
-	if (t == 'B') maxVal = 10;
-	else if (t == 'P') maxVal = 25;
-	else if (t == 'H') maxVal = 50;
+void Building::updateMax() {
+	if (type == 'B') maxVal = 10;
+	else if (type == 'P') maxVal = 25;
+	else if (type == 'H') maxVal = 50;
 }
 
 #endif

@@ -5,9 +5,9 @@ OBJS=map.o
 all: $(PROGS)
 
 map: map.o digraph.o
-	g++ map.o -o map
+	g++ map.o digraph.o -o map
 
-map.o: map.cpp building.h
+map.o: map.cpp building.h digraph.h wdigraph.h
 	g++ map.cpp -o map.o $(CFLAGS)
 
 digraph.o: digraph.cpp digraph.h
