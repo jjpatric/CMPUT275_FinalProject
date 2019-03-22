@@ -8,7 +8,7 @@
 
 #include "clientFunct.h"
 
-void drawBuilding(char type, int pop, int textBackground, int xPos, int yPos){
+void drawBuilding(char type, int pop, int textBackground, int xPos, int yPos, Adafruit_ILI9341 tft){
   tft.setCursor(xPos, yPos);
   tft.setTextSize(1);
   tft.setTextColor(ILI9341_BLACK, textBackground);
@@ -18,6 +18,6 @@ void drawBuilding(char type, int pop, int textBackground, int xPos, int yPos){
   tft.print(pop);
 }
 
-void drawMainMenu(){
+void drawMainMenu(Adafruit_ILI9341 tft){
   tft.fillRect(50, 50, 100, 75, 0);
 }

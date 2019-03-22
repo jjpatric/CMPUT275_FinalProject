@@ -14,6 +14,7 @@
 #include <SD.h>
 #include "clientFunct.h"
 
+Adafruit_ILI9341 tft = Adafruit_ILI9341(10, 9);
 
 // max size of buffer, including null terminator
 const uint16_t buf_size = 256;
@@ -54,11 +55,60 @@ int cursorX = tft_width/2, cursorY = tft_height/2, cursorR = 9;
 char* buffer = (char *) malloc(buf_size);
 
 bool successHS = false;
+int ahhh=0;
 
+void makeBuilding(){
+  int i = 0, count = 0;
+  char type;
+  int pop, team, textBackground, xPos, yPos;
+
+  while(true){
+    if(buffer[i] == 32 && count == 0){
+      type = buffer[i+1];
+      count++;
+    }
+    else if(buffer[i] == 32 && count == 1){
+      pop = atoi(&buffer[i+1]);
+      count++;
+    }
+    else if(buffer[i] == 32 && count == 2){
+      team = atoi(&buffer[i+1]);
+      textBackground;
+      if (team == 0){ textBackground = ILI9341_WHITE; }
+      else if (team == 1){ textBackground = customRed; }
+      else if (team == 2){ textBackground = customBlue; }
+      count++;
+    }
+    else if(buffer[i] == 32 && count == 3){
+      xPos = atoi(&buffer[i+1]);
+      count++;
+    }
+    else if(buffer[i] == 32 && count == 4){
+      yPos = atoi(&buffer[i+1]);
+      count++;
+
+    }
+    else if(buffer[i] == 10 && count == 5){
+      break;
+    }
+    i++;
+  }
+
+
+  drawBuilding(type, pop, textBackground, xPos, yPos, tft); 
+  ahhh++;
+
+
+  Serial.print("A\n");
+  Serial.flush();
+ 
+}
 
 void process_line() {
   
   if(buffer[0] == 65){ successHS = true; } //only checks first letter of handshake message
+  if(buffer[0] == 66){ makeBuilding(); } // if first character is 'B'
+
   // clear the buffer
   buf_len = 0;
   buffer[buf_len] = 0;
@@ -87,6 +137,11 @@ void read_line() {
       }
     }
   }
+}
+
+void process_input(){
+
+
 }
 
 void setup() {
@@ -126,11 +181,6 @@ void setup() {
   Serial.println("STATE2");
   Serial.flush();
 
-  // testing layout:
-  //drawBuilding('B', 10, customRed, 20, 20);
-  //drawBuilding('B', 10, customRed, 20, 220);
-  //drawBuilding('P', 25, ILI9341_WHITE, 160, 120);
-  //drawBuilding('H', 50, customBlue, 260, 220);
 
 }
 
@@ -141,7 +191,7 @@ int main() {
   // which endpoint are we waiting for?
   enum {STATE2, STATE3} curr_mode = STATE2;
 
-  drawMainMenu();
+  //drawMainMenu(tft);
 
   while (curr_mode == STATE2) {
     // clear entries for new state
@@ -150,7 +200,8 @@ int main() {
     joy_button_pushed = 0;
 
 
-    //process_input();
+    process_input();
+    read_line();
 
   }
   Serial.flush();

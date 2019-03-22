@@ -19,6 +19,7 @@
 #include "wdigraph.h"
 #include "server_util.h"
 #include "serialport.h"
+#include "map.h"
 
 
 SerialPort Serial("/dev/ttyACM0");
@@ -59,16 +60,44 @@ void handshake(){
 
 }
 
+void sendBuildings(WDigraph& dists, unordered_map<int, Building> buildings, int n){
+    
+    for(int i = 0; i < n; i++){
+      assert(Serial.writeline("B "));
+      string s(1,buildings[i].type);
+      assert(Serial.writeline(s));
+      assert(Serial.writeline(" "));
+      assert(Serial.writeline(to_string(buildings[i].units)));
+      assert(Serial.writeline(" "));
+      assert(Serial.writeline(to_string(buildings[i].control)));
+      assert(Serial.writeline(" "));
+      assert(Serial.writeline(to_string(buildings[i].x)));
+      assert(Serial.writeline(" "));
+      assert(Serial.writeline(to_string(buildings[i].y)));
+      assert(Serial.writeline(" \n"));
+      
+      string line;
+      while (1){
+        line = Serial.readline(1000);
+        if(line[0] == 'A'){ break; }
+      }
+    }
+
+      assert(Serial.writeline("E\n"));
+}
 
 int main() {
   
   handshake();
 
-  WDigraph graph;
-  unordered_map<int, Point> points;
+  int n = 0;
+  string filename = "test.txt";
+  WDigraph dists;
+  unordered_map<int, Building> buildings;
+  
+  readBuildings(filename, buildings, n);
+  buildGraph(n, buildings, dists);
+  sendBuildings(dists, buildings, n);
 
-  // build the graph
-  //readGraph("edmonton-roads-2.0.1.txt", graph, points);
-  //cout << "Waiting for a request..." << endl;
   return 0;
 }
