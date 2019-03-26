@@ -1,13 +1,3 @@
-//--------------------------------------------
-// Name: Zack Rodgers
-// ID: 1554405
-//
-// Partner Name: Joshua Patrick
-// CMPUT 275, Winter 2019
-//
-// Final Project
-//--------------------------------------------
-
 #include <iostream>
 #include <cassert>
 #include <list>
@@ -17,87 +7,154 @@
 #include <utility> //for pair
 #include <stdlib.h>
 #include "wdigraph.h"
+#include "dijkstra.h"
 #include "server_util.h"
 #include "serialport.h"
-#include "map.h"
+
 
 
 SerialPort Serial("/dev/ttyACM0");
 
-// performs a TCP handshake between the server and the client
 void handshake(){
   SerialPort Serial("/dev/ttyACM0");
 
-  string curState = "STATE0\n";
-  string nextState = "STATE1\n";
+  string curPhase = "PHASE00\n";
+  string nextPhase = "PHASE01\n";
   string line;
 
   cout << "Server started, you might need to restart your Arduino" << endl;
-  cout << "Server is in state " << curState;
-  cout << "Waiting for STATE1 message from Arduino..." << endl;
+  cout << "Server is in phase " << curPhase;
+  cout << "Waiting for PHASE01 message from Arduino..." << endl;
 
-  // read and ignore lines until we get the message STATE1
+  // read and ignore lines until we get the message PHASE01
   do {
     line = Serial.readline();
-  } while (line != nextState);
+  } while (line != nextPhase);
 
+  // switch to next phase
+  curPhase = nextPhase;
+  nextPhase = "PHASE02\n";
+  cout << "Server is in phase " << curPhase;
+
+  // read the introductory lines until get the message PHASE01
+  do {
+    line = Serial.readline();
+  } while (line != nextPhase);
   assert(Serial.writeline("Ack\n"));
 
   // switch to next phase
-  curState = nextState;
-  nextState = "STATE2\n";
-  cout << "Server is in state " << curState;
-
-  // read the introductory lines until get the message STATE1
-  do {
-    line = Serial.readline();
-  } while (line != nextState);
-  
-  // switch to next state
-  curState = nextState;
+  curPhase = nextPhase;
 
   cout << "Finished Handshake!" << endl;
 
 }
 
-void sendBuildings(WDigraph& dists, unordered_map<int, Building> buildings, int n){
+void processRequest(WDigraph& graph, unordered_map<int, Point>& points, Point sPoint, Point ePoint){
+  
+  // get the points closest to the two input points
+  int start = findClosest(sPoint, points), end = findClosest(ePoint, points);
+
+  // run dijkstra's to compute a shortest path
+  unordered_map<int, PLI> tree;
+  dijkstra(graph, start, tree);
+
+  if (tree.find(end) == tree.end()) {
+      // no path
+     
+      assert(Serial.writeline("N 0\n"));
+  }
+  else {
+    // read off the path by stepping back through the search tree
+    list<int> path;
+    while (end != start) {
+      path.push_front(end);
+      end = tree[end].second;
+    }
+    path.push_front(start);
+
+    // output the path size
     
-    for(int i = 0; i < n; i++){
-      assert(Serial.writeline("B "));
-      string s(1,buildings[i].type);
-      assert(Serial.writeline(s));
-      assert(Serial.writeline(" "));
-      assert(Serial.writeline(to_string(buildings[i].units)));
-      assert(Serial.writeline(" "));
-      assert(Serial.writeline(to_string(buildings[i].control)));
-      assert(Serial.writeline(" "));
-      assert(Serial.writeline(to_string(buildings[i].x)));
-      assert(Serial.writeline(" "));
-      assert(Serial.writeline(to_string(buildings[i].y)));
-      assert(Serial.writeline(" \n"));
+    assert(Serial.writeline("N "));
+    assert(Serial.writeline(to_string(path.size())));
+    assert(Serial.writeline(" \n"));
+    string line;
+    while (1){
+      line = Serial.readline(1);
+      if(line[0] == 'A'){ break; }
+    }
+
+    // output the path
+    for (auto v : path) {
       
-      string line;
+      assert(Serial.writeline("W "));
+      assert(Serial.writeline(to_string(points[v].lat)));
+      assert(Serial.writeline(" "));
+      assert(Serial.writeline(to_string(points[v].lon)));
+      assert(Serial.writeline("\n"));
       while (1){
-        line = Serial.readline(1000);
+        line = Serial.readline(1);
         if(line[0] == 'A'){ break; }
       }
     }
 
       assert(Serial.writeline("E\n"));
+  }
+}
+
+pair<Point, Point> parseRequest(string line){
+  string params[5];
+  stringstream ss;
+  ss << line;
+  for (int i = 0; i < 5; i++){
+    getline(ss, params[i], ' ');
+  }
+  Point start, end;
+  long long coords[4];
+  for (int i = 0; i < 4; i++){
+    coords[i] = stoll(params[i+1]);
+  }
+  start.lat = coords[0];
+  start.lon = coords[1];
+  end.lat = coords[2];
+  end.lon = coords[3];
+  pair<Point, Point> startEndPair;
+  startEndPair.first = start;
+  startEndPair.second = end;
+
+  return startEndPair;
+
+}
+
+int waitRequest(WDigraph& graph, unordered_map<int, Point>& points){
+  string line;
+  while (1){
+    line = Serial.readline(1);
+    if(line[0] == 'R'){ break; }
+  }
+
+
+  pair<Point, Point> coords = parseRequest(line);
+  Point sPoint, ePoint;
+  sPoint = coords.first;
+  ePoint = coords.second;
+
+  processRequest(graph, points, sPoint, ePoint);
+  
+  return 0;
 }
 
 int main() {
   
   handshake();
 
-  int n = 0;
-  string filename = "test.txt";
-  WDigraph dists;
-  unordered_map<int, Building> buildings;
-  
-  readBuildings(filename, buildings, n);
-  buildGraph(n, buildings, dists);
-  sendBuildings(dists, buildings, n);
+  WDigraph graph;
+  unordered_map<int, Point> points;
 
+  // build the graph
+  readGraph("edmonton-roads-2.0.1.txt", graph, points);
+  cout << "Waiting for a request..." << endl;
+  while(1){
+    waitRequest(graph, points);
+  }
   return 0;
 }

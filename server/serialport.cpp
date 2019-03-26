@@ -49,8 +49,7 @@ string SerialPort::readline(int timeout) {
     // loop until a character is available, or timeout
     do {
       clock_t cur = clock();
-      int ms_waited((cur-start)*1000.0/CLOCKS_PER_SEC);
-      if (timeout > 0 && ms_waited > timeout) {
+      if (timeout > 0 && (cur - start) > CLOCKS_PER_SEC / 1000) {
         // timeout!
         return "";
       }
