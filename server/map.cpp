@@ -79,6 +79,7 @@ void buildGraph(int n, unordered_map<int, Building> buildings, WDigraph& dists) 
     for(int i = 0; i < n; i++) {
         dists.addVertex(i);
     }
+    // BigO notation is O((n * (n - 1)) / 2)
     int cost, x1,y1,x2,y2;
     for (int i = 0; i < n-1; i++) {
         x1 = buildings[i].x;
