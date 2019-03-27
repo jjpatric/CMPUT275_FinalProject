@@ -1,17 +1,14 @@
 CC=g++
 LFLAGS=
 CFLAGS=-c -Wall -std=c++11 -O2
-OBJS=digraph.o dijkstra.o server.o server_util.o serialport.o
+OBJS=digraph.o server.o server_util.o serialport.o map.o
 EXE=server
 
 $(EXE): $(OBJS)
 	$(CC) $(OBJS) -o $(EXE) $(LFLAGS)
 
-server.o: server.cpp  digraph.h dijkstra.h wdigraph.h server_util.h serialport.h
+server.o: server.cpp wdigraph.h server_util.h serialport.h map.h
 	$(CC) server.cpp -o server.o $(CFLAGS)
-
-dijkstra.o: dijkstra.cpp dijkstra.h heap.h digraph.h wdigraph.h
-	$(CC) dijkstra.cpp -o dijkstra.o $(CFLAGS)
 
 digraph.o: digraph.cpp digraph.h
 	$(CC) digraph.cpp -o digraph.o $(CFLAGS)
@@ -21,6 +18,9 @@ server_util.o: server_util.cpp server_util.h wdigraph.h
 
 serialport.o: serialport.cpp serialport.h 
 	$(CC) serialport.cpp -o serialport.o $(CFLAGS)
+
+map.o: map.cpp map.h digraph.h wdigraph.h
+	$(CC) map.cpp -o map.o $(CFLAGS)
 
 clean:
 	@rm -f $(OBJS) $(EXE)
