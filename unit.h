@@ -15,7 +15,7 @@ private:
 	int startBuilding, targetBuilding;
 	
 	// building coordinates
-	pair<int, int> startPos, endPos;
+	pair<int, int> startPos, targetPos;
 	
 	// startBuilding.units, startBuilding.control
 	int strength, control;
@@ -30,7 +30,7 @@ private:
 public:
 	// Unit constructor: parameters are in the order in which they appear in private.
 	// Constructor also calculates the values for turns, moveFactors, and currentPos.
-	Unit(int SB, int EB, pair<int, int> SP, pair<int, int> TP, int ST, int CO);
+	Unit(int SB, int TB, pair<int, int> SP, pair<int, int> TP, int ST, int CO);
 	
 	// update the unit's current position using its moveFactors
 	// also decrease the turn count
