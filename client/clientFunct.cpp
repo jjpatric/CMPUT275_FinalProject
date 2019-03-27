@@ -40,6 +40,7 @@ int customBlue = tft.color565(79, 178, 255);
 
 bool successHS = false;
 bool mainSelect = true; // says if multiplayer is selected
+int mapNum = 1;
 
 
 void drawBuilding(char type, int pop, int textBackground, int xPos, int yPos){
@@ -100,8 +101,9 @@ void makeBuilding(){
  
 }
 
-int multiplayerCornerX = 55, multiplayerCornerY = 100, multiplayerWidth = 200, multiplayerHeight = 50;
-int computerCornerX = 55, computerCornerY = 175, computerWidth = 200, computerHeight = 50;
+
+int multiplayerX = 55, multiplayerY = 100, multiplayerWidth = 200, multiplayerHeight = 50;
+int computerX = 55, computerY = 175, computerWidth = 200, computerHeight = 50;
 
 void drawMainMenu(){
   mainSelect = true;
@@ -115,39 +117,136 @@ void drawMainMenu(){
   tft.setCursor(90,50);
   tft.print("Wars");
 
-  tft.fillRect(multiplayerCornerX, multiplayerCornerY, multiplayerWidth, multiplayerHeight, customRed);
-  tft.setCursor(multiplayerCornerX + 20, multiplayerCornerY + 25);
+  tft.fillRect(multiplayerX, multiplayerY, multiplayerWidth, multiplayerHeight, customRed);
+  tft.setCursor(multiplayerX + 20, multiplayerY + 25);
   tft.setTextColor(customBlue);
   tft.print("Multiplayer");
 
-  tft.fillRect(computerCornerX, computerCornerY, computerWidth, computerHeight, customBlue);
-  tft.setCursor(computerCornerX + 20, computerCornerY + 25);
+  tft.fillRect(computerX, computerY, computerWidth, computerHeight, customBlue);
+  tft.setCursor(computerX + 20, computerY + 25);
   tft.setTextColor(customRed);
   tft.print("Computer");
 
 }
 
-void updateMainMenu(){
+char updateMainMenu(){
 
+  if(mainSelect){
+      tft.drawRect(multiplayerX, multiplayerY, multiplayerWidth,
+       multiplayerHeight, tft.color565(255, 242, 0)); // select multiplayer
+      tft.drawRect(computerX, computerY, computerWidth,
+       computerHeight, backgroundColor); // un-select computer
+  }
+  else{
+      tft.drawRect(computerX, computerY, computerWidth,
+       computerHeight, tft.color565(255, 242, 0)); // select computer
+      tft.drawRect(multiplayerX, multiplayerY, multiplayerWidth,
+       multiplayerHeight, backgroundColor); // un-select multiplayer
+  }
+
+  if(shared.action_pushed){
     if(mainSelect){
-        tft.drawRect(multiplayerCornerX, multiplayerCornerY, multiplayerWidth,
-         multiplayerHeight, tft.color565(255, 242, 0)); // select multiplayer
-        tft.drawRect(computerCornerX, computerCornerY, computerWidth,
-         computerHeight, backgroundColor); // un-select computer
+      return 'M';
     }
     else{
-        tft.drawRect(computerCornerX, computerCornerY, computerWidth,
-         computerHeight, tft.color565(255, 242, 0)); // select computer
-        tft.drawRect(multiplayerCornerX, multiplayerCornerY, multiplayerWidth,
-         multiplayerHeight, backgroundColor); // un-select multiplayer
+      return 'C';
     }
+  }
+
+  return 'N';
 }
+
+int mapOneX = 30, mapOneY = 50, mapOneWidth = 110, mapOneHeight = 60;
+int mapTwoX = 190, mapTwoY = 50, mapTwoWidth = 110, mapTwoHeight = 60;
+int mapThreeX = 30, mapThreeY = 140, mapThreeWidth = 110, mapThreeHeight = 60;
+int mapCustX = 190, mapCustY = 140, mapCustWidth = 110, mapCustHeight = 60;
+
+
+void drawMapMenu(){
+
+  tft.fillScreen(backgroundColor);
+  tft.setFont(&FreeMonoBoldOblique12pt7b);
+
+  tft.fillRect(mapOneX, mapOneY, mapOneWidth, mapOneHeight, customRed);
+  tft.setCursor(mapOneX + 45, mapOneY + 34);
+  tft.setTextColor(customBlue);
+  tft.print("1");
+
+  tft.fillRect(mapTwoX, mapTwoY, mapTwoWidth, mapTwoHeight, customRed);
+  tft.setCursor(mapTwoX + 45, mapTwoY + 34);
+  tft.print("2");
+
+  tft.fillRect(mapThreeX, mapThreeY, mapThreeWidth, mapThreeHeight, customRed);
+  tft.setCursor(mapThreeX + 45, mapThreeY + 34);
+  tft.print("3");
+
+  tft.fillRect(mapCustX, mapCustY, mapCustWidth, mapCustHeight, customRed);
+  tft.setCursor(mapCustX + 10, mapCustY + 34);
+  tft.print("CUSTOM");
+
+}
+
+char updateMapMenu(){
+
+  if(mapNum == 1){
+      tft.drawRect(mapOneX, mapOneY, mapOneWidth,
+       mapOneHeight, tft.color565(255, 242, 0)); // select mapOne
+      tft.drawRect(mapCustX, mapCustY, mapCustWidth,
+       mapCustHeight, backgroundColor); // un-select Custom map
+  }
+  else if(mapNum == 2){
+      tft.drawRect(mapTwoX, mapTwoY, mapTwoWidth,
+       mapTwoHeight, tft.color565(255, 242, 0)); // select mapTwp
+      tft.drawRect(mapOneX, mapOneY, mapOneWidth,
+       mapOneHeight, backgroundColor); // un-select mapOne
+  }
+  else if(mapNum == 3){
+      tft.drawRect(mapThreeX, mapThreeY, mapThreeWidth,
+       mapThreeHeight, tft.color565(255, 242, 0)); // select mapThree
+      tft.drawRect(mapTwoX, mapTwoY, mapTwoWidth,
+       mapTwoHeight, backgroundColor); // un-select mapTwo
+  }
+  else if(mapNum == 4){
+      tft.drawRect(mapCustX, mapCustY, mapCustWidth,
+       mapCustHeight, tft.color565(255, 242, 0)); // select custom Map
+      tft.drawRect(mapThreeX, mapThreeY, mapThreeWidth,
+       mapThreeHeight, backgroundColor); // un-select map Three
+  }
+
+  if(shared.action_pushed){
+    if(mapNum == 1){
+      return '1';
+    }
+    else if(mapNum == 2){
+      return '2';
+    }
+    else if(mapNum == 3){
+      return '3';
+    }
+    else if(mapNum == 4){
+      return '4';
+    }
+  }
+
+  return 'N';
+}
+
 
 
 void process_line() {
   
-  if(buffer[0] == 65){ successHS = true; } //only checks first letter of handshake message
+  if(buffer[0] == 65){ successHS = true; } //checks first letter of message is 'A'
   if(buffer[0] == 66){ makeBuilding(); } // if first character is 'B'
+  if(buffer[0] == 67 && shared.curr_mode == shared.STATE2){ // if first character is 'C', then mode was recieved by server
+    shared.curr_mode = shared.STATE3;
+  }
+  if(buffer[0] == 68 && shared.curr_mode == shared.STATE3){ // if first character is 'D', then map was recieved by server
+    tft.fillScreen(backgroundColor);
+    shared.curr_mode = shared.STATE4;
+  }
+  if(buffer[0] == 69 && shared.curr_mode == shared.STATE4){ // if first character is 'E', then stop reading buildings
+    shared.readBuildings = false;
+  }
 
   // clear the buffer
   buf_len = 0;
@@ -196,6 +295,21 @@ void process_input(){
     }
     
     if(shared.move_pushed && shared.curr_mode == shared.STATE2) mainSelect = !mainSelect; // if in main menu switch which thing is selected
+    if(shared.move_pushed && shared.curr_mode == shared.STATE3){
+      mapNum++; // if in map menu, switch which thing is selected
+      if(mapNum >= 5){ mapNum = 1; }
+    }
+}
+
+
+void updateGame(){
+
+shared.readBuildings = true;
+
+  while(shared.readBuildings){
+    read_line();
+  }
+
 }
 
 

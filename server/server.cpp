@@ -24,7 +24,7 @@
 
 SerialPort Serial("/dev/ttyACM0");
 
-// performs a TCP handshake between the server and the client
+// performs a handshake between the server and the client
 void handshake(){
   SerialPort Serial("/dev/ttyACM0");
 
@@ -60,9 +60,9 @@ void handshake(){
 
 }
 
-void sendBuildings(WDigraph& dists, unordered_map<int, Building> buildings, int n){
+void sendBuildings(WDigraph& dists, unordered_map<int, Building> buildings, int n){ // O(n) time
     
-    for(int i = 0; i < n; i++){
+    for(int i = 0; i < n; i++){ 
       assert(Serial.writeline("B "));
       string s(1,buildings[i].type);
       assert(Serial.writeline(s));
@@ -83,21 +83,80 @@ void sendBuildings(WDigraph& dists, unordered_map<int, Building> buildings, int 
       }
     }
 
-      assert(Serial.writeline("E\n"));
+    assert(Serial.writeline("E\n"));
 }
 
+
+
 int main() {
+  string line;
+  string filename;
+  char gameMode;
+  int numBuildings = 0;
   
   handshake();
 
-  int n = 0;
-  string filename = "test.txt";
+  /*
+    STATE2: Main Menu
+    STATE3: Level Select
+    STATE4: Gameplay
+    STATE5: End Screen
+  */
+  enum {STATE2, STATE3, STATE4, STATE5} curr_mode = STATE2;
+
+  while(curr_mode == STATE2){
+    line = Serial.readline(1000);
+    if(line[0] == 'M'){
+        gameMode = 'M';
+        curr_mode = STATE3;
+        assert(Serial.writeline("C\n"));
+    }
+    else if(line[0] == 'C'){
+        gameMode = 'C';
+        curr_mode = STATE3;
+        assert(Serial.writeline("C\n"));
+    }
+  }
+
+  while(curr_mode == STATE3){
+    
+    while(1){
+        line = Serial.readline(1000);
+        if(line[0] == '1'){ 
+            filename = "map1.txt";
+            assert(Serial.writeline("D\n"));
+            break;
+        }
+        else if(line[0] == '2'){ 
+            filename = "map2.txt";
+            assert(Serial.writeline("D\n"));
+            break;
+        }
+        else if(line[0] == '3'){
+            filename = "map3.txt";
+            assert(Serial.writeline("D\n"));
+            break;
+        }
+        else if(line[0] == '4'){
+            filename = "mapCust.txt";
+            assert(Serial.writeline("D\n"));
+            break;
+        }
+    }
+    curr_mode = STATE4;
+  }
+
+  cout << "Loading map: " << filename << endl;
   WDigraph dists;
   unordered_map<int, Building> buildings;
   
-  readBuildings(filename, buildings, n);
-  buildGraph(n, buildings, dists);
-  sendBuildings(dists, buildings, n);
+  readBuildings(filename, buildings, numBuildings);
+  buildGraph(numBuildings, buildings, dists);
+  sendBuildings(dists, buildings, numBuildings);
 
+  while(curr_mode == STATE4){
+    cout << "MADE IT TO THE GAME!" << endl;
+    return 0;
+  }
   return 0;
 }

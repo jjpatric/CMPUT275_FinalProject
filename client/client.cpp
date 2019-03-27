@@ -23,6 +23,8 @@ int main() {
 
   drawMainMenu();
 
+  char modeSelect, mapSelect;
+
   while (shared.curr_mode == shared.STATE2) {
     // clear entries for new state
     shared.select_pushed = 0;
@@ -30,10 +32,39 @@ int main() {
     shared.move_pushed = 0;
 
     process_input(); // read if buttons are pushed
-    updateMainMenu(); // update Main Menu based on buttons pressed
-    //read_line(); // read in anything coming from server
+    modeSelect = updateMainMenu(); // update Main Menu based on buttons pressed
+
+    Serial.println(modeSelect);
+    Serial.flush();
+    delay(100);
+    read_line();
 
   }
-  Serial.flush();
+
+  drawMapMenu();
+
+  while(shared.curr_mode == shared.STATE3){
+    // clear entries for new state
+    shared.select_pushed = 0;
+    shared.action_pushed = 0;
+    shared.move_pushed = 0;
+
+    process_input(); // read if buttons are pushed
+    mapSelect = updateMapMenu();
+
+    Serial.println(mapSelect);
+    Serial.flush();
+
+    read_line();
+
+  }
+
+
+  while(shared.curr_mode == shared.STATE4){
+    updateGame();
+
+    return 0;
+
+  }
   return 0;
 }
