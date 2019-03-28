@@ -7,7 +7,7 @@ EXE=server
 $(EXE): $(OBJS)
 	$(CC) $(OBJS) -o $(EXE) $(LFLAGS)
 
-server.o: server.cpp wdigraph.h server_util.h serialport.h map.h
+server.o: server.cpp wdigraph.h server_util.h serialport.h map.h unit.h
 	$(CC) server.cpp -o server.o $(CFLAGS)
 
 digraph.o: digraph.cpp digraph.h

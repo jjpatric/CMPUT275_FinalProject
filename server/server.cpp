@@ -20,7 +20,10 @@
 #include "server_util.h"
 #include "serialport.h"
 #include "map.h"
+#include "unit.h"
 
+WDigraph dists;
+unordered_map<int, Building> buildings;
 
 SerialPort Serial("/dev/ttyACM0");
 
@@ -147,16 +150,16 @@ int main() {
   }
 
   cout << "Loading map: " << filename << endl;
-  WDigraph dists;
-  unordered_map<int, Building> buildings;
+
   
   readBuildings(filename, buildings, numBuildings);
   buildGraph(numBuildings, buildings, dists);
   sendBuildings(dists, buildings, numBuildings);
 
   while(curr_mode == STATE4){
-    cout << "MADE IT TO THE GAME!" << endl;
-    return 0;
+    // TODO: wait until client send over info
+
+    // TODO: updateGame()
   }
   return 0;
 }

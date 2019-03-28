@@ -19,29 +19,21 @@ struct shared_vars {
   // STATE5: End Screen
   enum {STATE2, STATE3, STATE4, STATE5} curr_mode;
 
-
-
 };
-
-char updateMainMenu(); // updates main menu returns which mode was selected
-
-char updateMapMenu(); // updates map menu returns which map was selected
-
-void drawBuilding(char type, int pop, int textBackground, int xPos, int yPos); // draws buildings on tft display
-
-void makeBuilding(); // parses message from server to construct buildings
 
 void drawMainMenu(); // draws main menu
 
+char updateMainMenu(); // updates main menu returns which mode was selected
+
 void drawMapMenu(); // draws map menu
+
+char updateMapMenu(); // updates map menu returns which map was selected
 
 void process_line(); // determines what to do based on what has been read into buffer
 
-void process_input(); // reads which buttons are pushed
-
 void read_line(); // reads characters from serial port and stores them in buffer when it reads'\n'
 
-void updateGame(); // updates new game screen
+void process_input(); // reads which buttons are pushed
 
 void setup(); // performs handshake with server and sets up background
 

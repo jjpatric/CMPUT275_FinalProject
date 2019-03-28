@@ -8,6 +8,7 @@
 #include <SPI.h>
 
 #include "clientFunct.h"
+#include "game.h"
 
 extern shared_vars shared;
 
@@ -34,74 +35,19 @@ uint16_t buf_len = 0;
 // input buffer
 char* buffer = (char *) malloc(buf_size);
 
+// custom game colours
 int backgroundColor = tft.color565(80, 130, 46);
 int customRed = tft.color565(252, 70, 70);
 int customBlue = tft.color565(79, 178, 255);
+int customYell = tft.color565(255, 242, 0);
+int customPink = tft.color565(255, 255, 255);
 
 bool successHS = false;
 bool mainSelect = true; // says if multiplayer is selected
 int mapNum = 1;
 
 
-void drawBuilding(char type, int pop, int textBackground, int xPos, int yPos){
-  tft.setFont();
-  tft.setCursor(xPos, yPos);
-  tft.setTextSize(1);
-  tft.setTextColor(ILI9341_BLACK, textBackground);
-  tft.fillRect(xPos - 2, yPos - 2, 23, 10, textBackground);
-  tft.print(type);
-  tft.setCursor(xPos+8, yPos);
-  tft.print(pop);
-}
-
-
-void makeBuilding(){
-  int i = 0, count = 0;
-  char type;
-  int pop, team, textBackground, xPos, yPos;
-
-  while(true){
-    if(buffer[i] == 32 && count == 0){
-      type = buffer[i+1];
-      count++;
-    }
-    else if(buffer[i] == 32 && count == 1){
-      pop = atoi(&buffer[i+1]);
-      count++;
-    }
-    else if(buffer[i] == 32 && count == 2){
-      team = atoi(&buffer[i+1]);
-      textBackground;
-      if (team == 0){ textBackground = ILI9341_WHITE; }
-      else if (team == 1){ textBackground = customRed; }
-      else if (team == 2){ textBackground = customBlue; }
-      count++;
-    }
-    else if(buffer[i] == 32 && count == 3){
-      xPos = atoi(&buffer[i+1]);
-      count++;
-    }
-    else if(buffer[i] == 32 && count == 4){
-      yPos = atoi(&buffer[i+1]);
-      count++;
-
-    }
-    else if(buffer[i] == 10 && count == 5){
-      break;
-    }
-    i++;
-  }
-
-
-  drawBuilding(type, pop, textBackground, xPos, yPos);
-
-
-  Serial.print("A\n");
-  Serial.flush();
- 
-}
-
-
+// variables used in drawMainMenu() and updateMainMenu()
 int multiplayerX = 55, multiplayerY = 100, multiplayerWidth = 200, multiplayerHeight = 50;
 int computerX = 55, computerY = 175, computerWidth = 200, computerHeight = 50;
 
@@ -111,7 +57,7 @@ void drawMainMenu(){
   tft.fillScreen(backgroundColor);
   tft.setFont(&FreeMonoBoldOblique12pt7b);
   tft.setCursor(60,30);
-  tft.setTextColor(tft.color565(255, 242, 0));
+  tft.setTextColor(customYell);
   tft.setTextSize(1);
   tft.print("Civilization");
   tft.setCursor(90,50);
@@ -133,13 +79,13 @@ char updateMainMenu(){
 
   if(mainSelect){
       tft.drawRect(multiplayerX, multiplayerY, multiplayerWidth,
-       multiplayerHeight, tft.color565(255, 242, 0)); // select multiplayer
+       multiplayerHeight, customYell); // select multiplayer
       tft.drawRect(computerX, computerY, computerWidth,
        computerHeight, backgroundColor); // un-select computer
   }
   else{
       tft.drawRect(computerX, computerY, computerWidth,
-       computerHeight, tft.color565(255, 242, 0)); // select computer
+       computerHeight, customYell); // select computer
       tft.drawRect(multiplayerX, multiplayerY, multiplayerWidth,
        multiplayerHeight, backgroundColor); // un-select multiplayer
   }
@@ -156,11 +102,12 @@ char updateMainMenu(){
   return 'N';
 }
 
+
+// variables used in drawMapMenu() and updateMapMenu()
 int mapOneX = 30, mapOneY = 50, mapOneWidth = 110, mapOneHeight = 60;
 int mapTwoX = 190, mapTwoY = 50, mapTwoWidth = 110, mapTwoHeight = 60;
 int mapThreeX = 30, mapThreeY = 140, mapThreeWidth = 110, mapThreeHeight = 60;
 int mapCustX = 190, mapCustY = 140, mapCustWidth = 110, mapCustHeight = 60;
-
 
 void drawMapMenu(){
 
@@ -190,25 +137,25 @@ char updateMapMenu(){
 
   if(mapNum == 1){
       tft.drawRect(mapOneX, mapOneY, mapOneWidth,
-       mapOneHeight, tft.color565(255, 242, 0)); // select mapOne
+       mapOneHeight, customYell); // select mapOne
       tft.drawRect(mapCustX, mapCustY, mapCustWidth,
        mapCustHeight, backgroundColor); // un-select Custom map
   }
   else if(mapNum == 2){
       tft.drawRect(mapTwoX, mapTwoY, mapTwoWidth,
-       mapTwoHeight, tft.color565(255, 242, 0)); // select mapTwp
+       mapTwoHeight, customYell); // select mapTwp
       tft.drawRect(mapOneX, mapOneY, mapOneWidth,
        mapOneHeight, backgroundColor); // un-select mapOne
   }
   else if(mapNum == 3){
       tft.drawRect(mapThreeX, mapThreeY, mapThreeWidth,
-       mapThreeHeight, tft.color565(255, 242, 0)); // select mapThree
+       mapThreeHeight, customYell); // select mapThree
       tft.drawRect(mapTwoX, mapTwoY, mapTwoWidth,
        mapTwoHeight, backgroundColor); // un-select mapTwo
   }
   else if(mapNum == 4){
       tft.drawRect(mapCustX, mapCustY, mapCustWidth,
-       mapCustHeight, tft.color565(255, 242, 0)); // select custom Map
+       mapCustHeight, customYell); // select custom Map
       tft.drawRect(mapThreeX, mapThreeY, mapThreeWidth,
        mapThreeHeight, backgroundColor); // un-select map Three
   }
@@ -230,7 +177,6 @@ char updateMapMenu(){
 
   return 'N';
 }
-
 
 
 void process_line() {
@@ -299,17 +245,6 @@ void process_input(){
       mapNum++; // if in map menu, switch which thing is selected
       if(mapNum >= 5){ mapNum = 1; }
     }
-}
-
-
-void updateGame(){
-
-shared.readBuildings = true;
-
-  while(shared.readBuildings){
-    read_line();
-  }
-
 }
 
 

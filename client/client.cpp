@@ -13,6 +13,7 @@
 #include <Adafruit_ILI9341.h>
 #include <SD.h>
 #include "clientFunct.h"
+#include "game.h"
 
 shared_vars shared;
 
@@ -63,7 +64,7 @@ int main() {
   while(shared.curr_mode == shared.STATE4){
     updateGame();
 
-    return 0;
+    playerTurn();
 
   }
   return 0;

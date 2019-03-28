@@ -19,7 +19,7 @@ struct Building {
     // keeps track of who owns the building (Neutral:0, Player One:1, Player Two:2)
     int control;
     
-    // x and y coordinates of the building (0 <= x <= 320, 0<= y <= 240)
+    // x and y coordinates of the building (0 <= x <= 320, 0 <= y <= 240)
     int x;
     int y;
     
