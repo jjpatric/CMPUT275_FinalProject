@@ -151,15 +151,31 @@ int main() {
 
   cout << "Loading map: " << filename << endl;
 
-  
+  // setup for STATE4
   readBuildings(filename, buildings, numBuildings);
   buildGraph(numBuildings, buildings, dists);
   sendBuildings(dists, buildings, numBuildings);
+  list<int> selBuilds;
+  int moveToBuild;
 
   while(curr_mode == STATE4){
-    // TODO: wait until client send over info
+    while(1){
+        line = Serial.readline(1000);
+        if(line[0] == 'S'){
+            selBuilds.push_back(atoi(&line[2]));
+            assert(Serial.writeline("F\n"));
+        }
+        else if(line[0] == 'T'){
+            moveToBuild = atoi(&line[2]);
+            assert(Serial.writeline("F\n"));
+        }
+        else if(line[0] == 'E'){
+            assert(Serial.writeline("F\n"));
+            break;
+        }
+    }
 
-    // TODO: updateGame()
+    updateGame(selBuilds, moveToBuild, buildings, numBuildings);
   }
   return 0;
 }

@@ -7,7 +7,6 @@ struct buildings{
   int x, y;
   int team;
   bool selected;
-  bool exists;
 };
 
 void drawBuilding(char type, int pop, int teamColor, int xPos, int yPos); // draws buildings on tft display
@@ -16,6 +15,8 @@ void makeBuilding(); // parses message from server to construct buildings
 
 void updateGame(); // updates new game screen
 
-void playerTurn(); // player makes their move
+void playerTurn(int turn); // player makes their move
+
+void sendData(); // sends all data from playerTurn over to server
 
 #endif

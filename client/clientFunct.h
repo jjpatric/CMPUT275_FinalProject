@@ -11,6 +11,7 @@ struct xy_pos { // useful struct
 struct shared_vars {
   bool select_pushed, action_pushed, move_pushed;
   bool readBuildings;
+  bool readData;
 
   // very simple finite state machine:
   // STATE2: Main Menu

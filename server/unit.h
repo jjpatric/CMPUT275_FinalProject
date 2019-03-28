@@ -21,7 +21,7 @@ private:
 	pair<int, int> startPos, targetPos;
 	
 	// buildings[startBuilding].units, buildings[startBuilding].control
-	int strength, control;
+	int control;
 
 	// distance between start and target building
 	int travDist;
@@ -30,13 +30,14 @@ private:
 	
 	// calculated in the constructor for the unit's position
 	int turns;
+	int strength;
 	pair<int, int> moveFactors;
 	pair<int, int> currentPos;
 	
 public:
 	// Unit constructor: parameters are in the order in which they appear in private.
 	// Constructor also calculates the values for turns, moveFactors, and currentPos.
-	Unit(int SB, int TB, pair<int, int> SP, pair<int, int> TP, int ST, int CO, int TD);
+	Unit(int SB, int TB, pair<int, int> SP, pair<int, int> TP, int CO, int TD);
 	
 	// update the unit's current position using its moveFactors
 	// also decrease the turn count
@@ -49,10 +50,15 @@ public:
 	// add or subtract the unit's strength from buildings[targetBuilding].units
 	// if buildings[targetBuilding].units falls to or below 0, change buildings[targetBuilding].control to other player.
 	void damageCalc();
+
+	// initializes a new units strength
+	void init();
 };
 
-Unit::Unit(int SB, int TB, pair<int, int> SP, pair<int, int> TP, int ST, int CO, int TD):
-startBuilding(SB), targetBuilding(TB), startPos(SP), targetPos(TP), strength(ST), control(CO), travDist(TD){
+Unit::Unit(int SB, int TB, pair<int, int> SP, pair<int, int> TP, int CO, int TD):
+startBuilding(SB), targetBuilding(TB), startPos(SP), targetPos(TP), control(CO), travDist(TD){
+	init();
+	if(strength == 0) // delete the unit
 	turns = travDist / 100;
 	if(travDist % 100 > 0) turns++;
 	currentPos = startPos;
@@ -86,6 +92,14 @@ void Unit::damageCalc(){
 		}
 	}
 
+}
+
+// called in constructor
+void Unit::init(){
+	if(buildings[startBuilding].units > 1){
+		strength = buildings[startBuilding].units / 2;
+		buildings[startBuilding].units -= strength;
+	}
 
 }
 

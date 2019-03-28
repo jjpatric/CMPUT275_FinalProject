@@ -15,7 +15,7 @@
 #include "clientFunct.h"
 #include "game.h"
 
-shared_vars shared;
+shared_vars shared; // idea from eClass notes stores shared variables in "clientFunct.h"
 
 int main() {
   setup();
@@ -27,7 +27,7 @@ int main() {
   char modeSelect, mapSelect;
 
   while (shared.curr_mode == shared.STATE2) {
-    // clear entries for new state
+    // clear entries for new state (Idea from eClass)
     shared.select_pushed = 0;
     shared.action_pushed = 0;
     shared.move_pushed = 0;
@@ -45,7 +45,7 @@ int main() {
   drawMapMenu();
 
   while(shared.curr_mode == shared.STATE3){
-    // clear entries for new state
+    // clear entries for new state (Idea from eClass)
     shared.select_pushed = 0;
     shared.action_pushed = 0;
     shared.move_pushed = 0;
@@ -60,11 +60,16 @@ int main() {
 
   }
 
-
+  int turn = 1;
   while(shared.curr_mode == shared.STATE4){
     updateGame();
 
-    playerTurn();
+    playerTurn(turn);
+
+    sendData();
+
+    if(turn == 1) turn = 2; // switch whos turn it is
+    else turn = 1;
 
   }
   return 0;

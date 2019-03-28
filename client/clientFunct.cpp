@@ -40,7 +40,7 @@ int backgroundColor = tft.color565(80, 130, 46);
 int customRed = tft.color565(252, 70, 70);
 int customBlue = tft.color565(79, 178, 255);
 int customYell = tft.color565(255, 242, 0);
-int customPink = tft.color565(255, 255, 255);
+int customWhite = tft.color565(255, 255, 255);
 
 bool successHS = false;
 bool mainSelect = true; // says if multiplayer is selected
@@ -192,6 +192,9 @@ void process_line() {
   }
   if(buffer[0] == 69 && shared.curr_mode == shared.STATE4){ // if first character is 'E', then stop reading buildings
     shared.readBuildings = false;
+  }
+  if(buffer[0] == 70 && shared.curr_mode == shared.STATE4){ // if first character is 'F', then data was recieved by server
+    shared.readData = false;
   }
 
   // clear the buffer

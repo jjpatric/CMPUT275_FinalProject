@@ -93,3 +93,10 @@ void buildGraph(int n, unordered_map<int, Building> buildings, WDigraph& dists) 
         }
     }
 }
+
+void updateGame(list<int> selBuilds, int moveToBuild, unordered_map<int, Building> buildings, int numBuildings){
+
+    // Unit unit = Unit(); incomplete
+
+
+}

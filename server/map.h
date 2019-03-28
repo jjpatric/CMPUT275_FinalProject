@@ -1,7 +1,18 @@
+//--------------------------------------------
+// Name: Zack Rodgers
+// ID: 1554405
+//
+// Partner Name: Joshua Patrick
+// CMPUT 275, Winter 2019
+//
+// Final Project
+//--------------------------------------------
+
 #ifndef _MAP_H_
 #define _MAP_H_
 
 #include <string>
+#include <list>
 #include <unordered_map>
 #include "wdigraph.h"
 
@@ -38,6 +49,8 @@ long long distance(int x1, int y1, int x2, int y2);
 
 // stores the distances between each building for every building
 void buildGraph(int n, unordered_map<int, Building> buildings, WDigraph& dists);
+
+void updateGame(list<int> selBuilds, int moveToBuild, unordered_map<int, Building> buildings, int numBuildings);
 
 
 #endif

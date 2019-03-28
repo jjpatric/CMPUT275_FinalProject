@@ -13,11 +13,12 @@ extern int backgroundColor;
 extern int customRed;
 extern int customBlue;
 extern int customYell;
-extern int customPink;
+extern int customWhite;
 
 extern Adafruit_ILI9341 tft;
 
 buildings town[30]; // max number of buildings is 30
+int moveToBuild;
 int numBuilds = 0;
 
 void drawBuilding(char type, int pop, int teamColor, int xPos, int yPos){
@@ -71,7 +72,6 @@ void makeBuilding(){
   town[numBuilds].x = xPos;
   town[numBuilds].y = yPos;
   town[numBuilds].team = team;
-  town[numBuilds].exists = true;
   numBuilds++;
   drawBuilding(type, pop, teamColor, xPos, yPos);
 
@@ -83,7 +83,7 @@ void makeBuilding(){
 
 void updateGame(){
 
-    shared.readBuildings = true;
+  shared.readBuildings = true;
 
   while(shared.readBuildings){
     read_line();
@@ -93,63 +93,96 @@ void updateGame(){
 }
 
 
-void playerTurn(){
-int partOfTurn = 0;
-int selectBuild = 0;
-int startBuild;
-int prevBuild = 0;
+void playerTurn(int turn){
+    int partOfTurn = 0;
+    int selectBuild = 0;
+    int startBuild;
+    int prevBuild = 0;
 
-while(town[selectBuild].team != 1){ // make sure selected building is under player control
-    selectBuild++;
-}
-startBuild = selectBuild;
+    while(town[selectBuild].team != turn){ // make sure selected building is under player control
+        selectBuild++;
+    }
+    startBuild = selectBuild;
 
-tft.drawRect(town[selectBuild].x - 3, town[selectBuild].y - 3, 26, 12, customYell); // select first building
+    tft.drawRect(town[selectBuild].x - 3, town[selectBuild].y - 3, 26, 12, customYell); // circle first building
 
-while(partOfTurn < 2){
-    shared.select_pushed = 0;
-    shared.action_pushed = 0;
-    shared.move_pushed = 0;
-    process_input(); // read if buttons are pushed
+    while(partOfTurn < 2){
+        shared.select_pushed = 0;
+        shared.action_pushed = 0;
+        shared.move_pushed = 0;
+        process_input(); // read if buttons are pushed
 
-    if(partOfTurn == 0){
-        if(shared.move_pushed){
-            prevBuild = selectBuild;
-            selectBuild++;
-
-            while(town[selectBuild].team != 1){ // make sure selected building is under player control
+        if(partOfTurn == 1){
+            if(shared.move_pushed){
+                prevBuild = selectBuild;
                 selectBuild++;
-                if(selectBuild >= numBuilds) selectBuild = startBuild;
-            }
+                if(selectBuild >= numBuilds) selectBuild = 0; // if we went through list of all buildings restart
 
-            tft.drawRect(town[selectBuild].x - 3, town[selectBuild].y - 3, 26, 12, customYell); // select next building
-            tft.drawRect(town[prevBuild].x - 3, town[prevBuild].y - 3, 26, 12, backgroundColor); // deselect previous building
-  
-        }
-        if(shared.select_pushed){
-            if(town[selectBuild].selected == true){
-                town[selectBuild].selected = false;
-                tft.drawRect(town[selectBuild].x - 5, town[selectBuild].y - 5, 30, 16, backgroundColor); // deselect building
+                tft.drawRect(town[selectBuild].x - 3, town[selectBuild].y - 3, 26, 12, customYell); // circle next building
+                tft.drawRect(town[prevBuild].x - 3, town[prevBuild].y - 3, 26, 12, backgroundColor); // decircle previous building
             }
-            else{
-                town[selectBuild].selected = true;
-                tft.drawRect(town[selectBuild].x - 5, town[selectBuild].y - 5, 30, 16, customPink); // select building
+            if(shared.action_pushed){
+                moveToBuild = selectBuild;
+                partOfTurn = 2; // move onto next part
             }
-
-        }
-        if(shared.action_pushed){
-            partOfTurn++;
         }
 
 
+        if(partOfTurn == 0){
+            if(shared.move_pushed){
+                prevBuild = selectBuild;
+                selectBuild++;
+
+                while(town[selectBuild].team != turn){ // make sure selected building is under player control
+                    selectBuild++;
+                    if(selectBuild >= numBuilds) selectBuild = startBuild;
+                }
+
+                tft.drawRect(town[selectBuild].x - 3, town[selectBuild].y - 3, 26, 12, customYell); // circle next building
+                tft.drawRect(town[prevBuild].x - 3, town[prevBuild].y - 3, 26, 12, backgroundColor); // decircle previous building
+      
+            }
+            if(shared.select_pushed){
+                if(town[selectBuild].selected == true){
+                    town[selectBuild].selected = false;
+                    tft.drawRect(town[selectBuild].x - 5, town[selectBuild].y - 5, 30, 16, backgroundColor); // deselect building
+                }
+                else{
+                    town[selectBuild].selected = true;
+                    tft.drawRect(town[selectBuild].x - 5, town[selectBuild].y - 5, 30, 16, customWhite); // select building
+                }
+
+            }
+            if(shared.action_pushed){
+                partOfTurn = 1;
+                delay(100); // avoid double presses
+            }
+        }
     }
-    if(partOfTurn == 1){
-
-
-    }
-
-
 }
 
-numBuilds = 0;
+
+void sendData(){
+    for(int i = 0; i < numBuilds; i++){
+        if(town[i].selected){
+            Serial.print("S ");
+            Serial.println(i);
+            Serial.flush();
+            shared.readData = true; // make sure server got the data before sending more
+            while(shared.readData) read_line();
+        }
+    }
+    if(moveToBuild){
+        Serial.print("T ");
+        Serial.println(moveToBuild);
+        Serial.flush();
+        shared.readData = true; // make sure server got the data before sending more
+        while(shared.readData) read_line();
+    }
+    Serial.print("E\n");
+    Serial.flush();
+    shared.readData = true; // make sure server got the data
+    while(shared.readData) read_line();
+
+    numBuilds = 0;
 }
