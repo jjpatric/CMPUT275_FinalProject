@@ -5,6 +5,8 @@
 #include <list>
 #include <iostream>
 
+using namespace std;
+
 extern WDigraph dists;
 extern unordered_map<int, Building> buildings;
 
@@ -68,8 +70,9 @@ startBuilding(SB), targetBuilding(TB), startPos(SP), targetPos(TP), control(CO),
 	turns = travDist / 100;
 	if(travDist % 100 > 0) turns++;
 	currentPos = startPos;
-	moveFactors.first = abs(startPos.first - targetPos.first) / turns;
-	moveFactors.second = abs(startPos.first - targetPos.first) / turns;
+
+	moveFactors.first = (targetPos.first - startPos.first) / turns;
+	moveFactors.second = (targetPos.second - startPos.second) / turns;
 }
 
 
@@ -80,7 +83,7 @@ void Unit::moveUnit(){
 }
 
 bool Unit::checkUnit(){
-	if(turns == 0){
+	if(turns <= 0){
 		damageCalc();
 		return false;
 	}
@@ -89,13 +92,20 @@ bool Unit::checkUnit(){
 
 void Unit::damageCalc(){
 	if(buildings[targetBuilding].control == control) buildings[targetBuilding].units += strength;
-	
+
 	if(buildings[targetBuilding].control != control){
 		buildings[targetBuilding].units -= strength;
-
 		if(buildings[targetBuilding].units <= 0){
-			buildings[targetBuilding].control = control;
-			buildings[targetBuilding].units = abs(buildings[targetBuilding].units);
+			if(buildings[targetBuilding].control == 0){
+				if(buildings[targetBuilding].type == 'B') buildings[targetBuilding].units = 10;
+				if(buildings[targetBuilding].type == 'P') buildings[targetBuilding].units = 25;
+				if(buildings[targetBuilding].type == 'H') buildings[targetBuilding].units = 50;
+				buildings[targetBuilding].control = control;
+			}
+			else if(buildings[targetBuilding].control > 0){
+				buildings[targetBuilding].control = control;
+				buildings[targetBuilding].units = abs(buildings[targetBuilding].units);
+			}
 		}
 	}
 

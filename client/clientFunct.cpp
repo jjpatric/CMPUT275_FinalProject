@@ -183,21 +183,21 @@ void process_line() {
   
   if(buffer[0] == 65){ successHS = true; } //checks first letter of message is 'A'
   if(buffer[0] == 66){ makeBuilding(); } // if first character is 'B' make buildings
-  if(buffer[0] == 67 && shared.curr_mode == shared.STATE2){ // if first character is 'C', then mode was recieved by server
+  if(buffer[0] == 67){ // if first character is 'C', then mode was recieved by server
     shared.curr_mode = shared.STATE3;
   }
-  if(buffer[0] == 68 && shared.curr_mode == shared.STATE3){ // if first character is 'D', then map was recieved by server
+  if(buffer[0] == 68){ // if first character is 'D', then map was recieved by server
     tft.fillScreen(backgroundColor);
     shared.curr_mode = shared.STATE4;
   }
-  if(buffer[0] == 69 && shared.curr_mode == shared.STATE4){ // if first character is 'E', then stop reading buildings or Units
+  if(buffer[0] == 69){ // if first character is 'E', then stop reading buildings or Units
     shared.readBuildings = false;
     shared.readUnits = false;
   }
-  if(buffer[0] == 70 && shared.curr_mode == shared.STATE4){ // if first character is 'F', then data was recieved by server
+  if(buffer[0] == 70){ // if first character is 'F', then data was recieved by server
     shared.readData = false;
   }
-  if(buffer[0] == 85 && shared.curr_mode == shared.STATE4){ // if first character is 'U', then make Units
+  if(buffer[0] == 85){ // if first character is 'U', then make Units
     makeUnit();
   }
 
@@ -237,14 +237,17 @@ void process_input(){
     shared.action_pushed = (digitalRead(action_pin) == LOW);
     if(shared.action_pushed) {
         while(digitalRead(action_pin) == LOW){} // wait until button is released
+        delay(200); // prevent double clicks
     }
     shared.select_pushed = (digitalRead(select_pin) == LOW);
     if(shared.select_pushed) {
         while(digitalRead(select_pin) == LOW){} // wait until button is released
+        delay(200); // prevent double clicks
     }
     shared.move_pushed = (digitalRead(move_pin) == LOW);
     if(shared.move_pushed) {
         while(digitalRead(move_pin) == LOW){} // wait until button is released
+        delay(200); // prevent double clicks
     }
     
     if(shared.move_pushed && shared.curr_mode == shared.STATE2) mainSelect = !mainSelect; // if in main menu switch which thing is selected
@@ -282,7 +285,7 @@ void setup() {
   while(!successHS){
     Serial.println("STATE1");
     Serial.flush();
-    delay(100);
+    delay(100); // time for server to respond
     read_line();
   }
   Serial.println("STATE2");

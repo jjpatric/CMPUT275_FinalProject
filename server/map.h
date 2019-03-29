@@ -15,6 +15,7 @@
 #include <list>
 #include <unordered_map>
 #include "wdigraph.h"
+#include "serialport.h"
 
 using namespace std;
 
@@ -50,7 +51,6 @@ long long distance(int x1, int y1, int x2, int y2);
 // stores the distances between each building for every building
 void buildGraph(int n, unordered_map<int, Building> buildings, WDigraph& dists);
 
-void updateGame(list<int> selBuilds, int moveToBuild, unordered_map<int, Building> buildings, int numBuildings);
-
+void updateGame(list<int>& selBuilds, int moveToBuild, unordered_map<int, Building>& buildings, int numBuildings);
 
 #endif

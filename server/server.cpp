@@ -18,13 +18,7 @@
 #include <stdlib.h>
 #include "wdigraph.h"
 #include "server_util.h"
-#include "serialport.h"
 #include "map.h"
-
-extern Unit::Unit(int SB, int TB, pair<int, int> SP, pair<int, int> TP, int CO, int TD):
-startBuilding(SB), targetBuilding(TB), startPos(SP), targetPos(TP), control(CO), travDist(TD);
-extern list<Unit> units;
-extern int numUnits;
 
 WDigraph dists;
 unordered_map<int, Building> buildings;
@@ -45,7 +39,7 @@ void handshake(){
 
   // read and ignore lines until we get the message STATE1
   do {
-    line = Serial.readline();
+    line = Serial.readline(1000);
   } while (line != nextState);
 
   assert(Serial.writeline("Ack\n"));
@@ -92,31 +86,6 @@ void sendBuildings(unordered_map<int, Building> buildings, int n){ // O(n) time
 
     assert(Serial.writeline("E\n"));
 }
-
-void sendUnits(list<Unit> units, int n){ // O(n) time
-    
-    for(list<Unit>::iterator unitIt = units.begin(); unitIt != units.end(); unitIt++){ 
-      Unit thisUnit = *unitIt;
-      assert(Serial.writeline("U "));
-      assert(Serial.writeline(to_string(thisUnit.strength)));
-      assert(Serial.writeline(" "));
-      assert(Serial.writeline(to_string(thisUnit.control)));
-      assert(Serial.writeline(" "));
-      assert(Serial.writeline(to_string(thisUnit.currentPos.first)));
-      assert(Serial.writeline(" "));
-      assert(Serial.writeline(to_string(thisUnit.currentPos.second)));
-      assert(Serial.writeline(" \n"));
-      
-      string line;
-      while (1){
-        line = Serial.readline(1000);
-        if(line[0] == 'A'){ break; }
-      }
-    }
-
-    assert(Serial.writeline("E\n"));
-}
-
 
 
 int main() {
@@ -180,17 +149,24 @@ int main() {
   cout << "Loading map: " << filename << endl;
 
   // setup for STATE4
+  list<int> selBuilds;
+  int moveToBuild = 0;
   readBuildings(filename, buildings, numBuildings);
   buildGraph(numBuildings, buildings, dists);
+  updateGame(selBuilds, moveToBuild, buildings, numBuildings);
   sendBuildings(buildings, numBuildings);
-  list<int> selBuilds;
-  int moveToBuild;
+  int turn = 1;
 
   while(curr_mode == STATE4){
+    cout << "Player " << turn << "'s Turn to select ally building(s)" << endl;
     while(1){
         line = Serial.readline(1000);
         if(line[0] == 'S'){
             selBuilds.push_back(atoi(&line[2]));
+            assert(Serial.writeline("F\n"));
+        }
+        else if(line[0] == 'N'){
+            cout << "Player " << turn << "'s Turn to target a building" << endl;
             assert(Serial.writeline("F\n"));
         }
         else if(line[0] == 'T'){
@@ -205,7 +181,8 @@ int main() {
 
     updateGame(selBuilds, moveToBuild, buildings, numBuildings);
     sendBuildings(buildings, numBuildings);
-    sendUnits(units, numUnits);
+    if(turn == 1) turn = 2;
+    else turn = 1;
   }
   return 0;
 }

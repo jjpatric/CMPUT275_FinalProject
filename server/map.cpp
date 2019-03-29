@@ -10,12 +10,19 @@
 
 #include "map.h"
 #include "unit.h"
+
 #include <fstream>
+#include <cstring>
 #include <sstream>
 #include <math.h>
 #include <iostream>
+#include <cassert>
+#include <string>
+#include <stdlib.h>
 
 using namespace std;
+
+extern SerialPort Serial;
 
 void Building::updateMax() {
     if (type == 'B') maxVal = 10;
@@ -96,34 +103,88 @@ void buildGraph(int n, unordered_map<int, Building> buildings, WDigraph& dists) 
 }
 
 list<Unit> units;
-int numUnits = 0;
 
-void updateGame(list<int> selBuilds, int moveToBuild, unordered_map<int, Building> buildings, int numBuildings){
+void updateGame(list<int>& selBuilds, int moveToBuild, unordered_map<int, Building>& buildings, int numBuildings){
 
-    while(selBuilds.size()){
-        pair<int, int> xyStart (buildings[selBuilds.back()].x, buildings[selBuilds.back()].y);
-        pair<int, int> xyTarget (buildings[moveToBuild].x, buildings[moveToBuild].y);
-        int travDist = sqrt(pow(xyTarget.first - xyStart.first, 2) + pow(xyTarget.second - xyStart.second, 2));
+    while(selBuilds.size()){ // create new units
+        if(selBuilds.back() == moveToBuild){}
+        else{
+            pair<int, int> xyStart (buildings[selBuilds.back()].x, buildings[selBuilds.back()].y);
+            pair<int, int> xyTarget (buildings[moveToBuild].x, buildings[moveToBuild].y);
+            int travDist = sqrt(pow(xyTarget.first - xyStart.first, 2) + pow(xyTarget.second - xyStart.second, 2));
 
-        Unit unit(selBuilds.back(), moveToBuild, xyStart, xyTarget, buildings[selBuilds.back()].control, travDist);
-        if(unit.strength > 0){ // does not create a unit if its strength would be 0
-            units.push_back(unit);
-            numUnits++;
+            Unit unit(selBuilds.back(), moveToBuild, xyStart, xyTarget, buildings[selBuilds.back()].control, travDist);
+            if(unit.strength > 0){ // does not create a unit if its strength would be 0
+                units.push_back(unit);
+            }
         }
-
         selBuilds.pop_back();
     }
 
-    for(list<Unit>::iterator unitIt = units.begin(); unitIt != units.end(); unitIt++){
-        Unit thisUnit = *unitIt;
+    for(list<Unit>::iterator unitIt = units.begin(); unitIt != units.end(); unitIt++){ // update Unit position and delete if needed
+        Unit& thisUnit = *unitIt;
         thisUnit.moveUnit();
         if(!thisUnit.checkUnit()){
             unitIt = units.erase(unitIt);
-            numUnits--;
             if(unitIt != units.begin() && units.size() > 0) --unitIt; // fix iterator if needed
         }
+        else{
+            assert(Serial.writeline("U "));
+            assert(Serial.writeline(to_string(thisUnit.strength)));
+            assert(Serial.writeline(" "));
+            assert(Serial.writeline(to_string(thisUnit.control)));
+            assert(Serial.writeline(" "));
+            assert(Serial.writeline(to_string(thisUnit.currentPos.first)));
+            assert(Serial.writeline(" "));
+            assert(Serial.writeline(to_string(thisUnit.currentPos.second)));
+            assert(Serial.writeline(" \n"));
+
+            string line;
+            while (1){
+                line = Serial.readline(1000);
+                if(line[0] == 'A'){ break; }
+            }
+        }
     }
+    assert(Serial.writeline("E\n"));
 
-
-
+    for (int i = 0; i < numBuildings; i++)
+    {
+        if(buildings[i].type == 'B'){
+            if(buildings[i].control){ // if a player controls the building increase units every turn
+                if(buildings[i].units <= 10){
+                    buildings[i].units += 1;
+                    if(buildings[i].units > 10) buildings[i].units = 10;
+                }
+            }
+            if(buildings[i].units > 10){
+                buildings[i].units -= 2;
+                if(buildings[i].units < 10) buildings[i].units = 10;
+            }
+        }
+        else if(buildings[i].type == 'P'){
+            if(buildings[i].control){ // if a player controls the building increase units every turn
+                if(buildings[i].units <= 25){
+                    buildings[i].units += 2;
+                    if(buildings[i].units > 25) buildings[i].units = 25;
+                }
+            }
+            if(buildings[i].units > 25){
+                buildings[i].units -= 2;
+                if(buildings[i].units < 25) buildings[i].units = 25;
+            }
+        }
+        else if(buildings[i].type == 'H'){
+            if(buildings[i].control){ // if a player controls the building increase units every turn
+                if(buildings[i].units <= 50){
+                    buildings[i].units += 3;
+                    if(buildings[i].units > 50) buildings[i].units = 50;
+                }
+            }
+            if(buildings[i].units > 50){
+                buildings[i].units -= 2;
+                if(buildings[i].units < 50) buildings[i].units = 50;
+            }
+        }
+    }
 }

@@ -26,6 +26,8 @@ void updateGame(); // updates new game screen
 
 void playerTurn(int turn); // player makes their move
 
+void resetTown(); // reset all building data
+
 void sendData(); // sends all data from playerTurn over to server
 
 #endif

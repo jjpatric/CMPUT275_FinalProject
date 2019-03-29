@@ -112,11 +112,15 @@ void makeUnit(){
     i++;
   }
 
-  armys[numArmys].x = xPos;
-  armys[numArmys].y = yPos;
-  armys[numArmys].team = team;
-  numArmys++;
-  tft.drawCircle(xPos, yPos, 2 + strength/10 , teamColor); // draw unit
+  if(strength > 0){
+    armys[numArmys].x = xPos;
+    armys[numArmys].y = yPos;
+    armys[numArmys].team = team;
+    numArmys++;
+    int radius = 2 + strength/10;
+    if(radius > 4) radius = 4;
+    tft.fillCircle(xPos, yPos, radius, teamColor); // draw unit
+  }
 
   Serial.print("A\n");
   Serial.flush();
@@ -124,20 +128,34 @@ void makeUnit(){
 
 
 void updateGame(){
-
-  shared.readBuildings = true;
-
-  while(shared.readBuildings){
-    read_line();
-  }
+  tft.fillScreen(backgroundColor);
 
   shared.readUnits = true;
   while(shared.readUnits){
     read_line();
   }
 
+  shared.readBuildings = true;
+  while(shared.readBuildings){
+    read_line();
+  }
+
+
 }
 
+void winScreen(int winner){
+  tft.fillScreen(customYell);
+  tft.setCursor(100, 50); // reset other text options
+  tft.setTextSize(2);
+  tft.setTextColor(ILI9341_BLACK);
+  tft.print("Player ");
+  tft.print(winner);
+  tft.println(" WON!");
+  tft.println("Please reset Arduino");
+  tft.println("and Server");
+  tft.println("to play again!");
+  while(1){}
+}
 
 void playerTurn(int turn){
     int partOfTurn = 0;
@@ -145,8 +163,18 @@ void playerTurn(int turn){
     int startBuild;
     int prevBuild = 0;
 
+    int winCheck = selectBuild;
     while(town[selectBuild].team != turn){ // make sure selected building is under player control
         selectBuild++;
+        if(selectBuild >= numBuilds) selectBuild = 0;
+        if(selectBuild == winCheck){ // if there are no more buildings other player wins
+            if(turn == 1){
+                winScreen(2);
+            }
+            else{
+                winScreen(1);
+            } 
+        }
     }
     startBuild = selectBuild;
 
@@ -164,8 +192,8 @@ void playerTurn(int turn){
                 selectBuild++;
                 if(selectBuild >= numBuilds) selectBuild = 0; // if we went through list of all buildings restart
 
-                tft.drawRect(town[selectBuild].x - 3, town[selectBuild].y - 3, 26, 12, customYell); // circle next building
                 tft.drawRect(town[prevBuild].x - 3, town[prevBuild].y - 3, 26, 12, backgroundColor); // decircle previous building
+                tft.drawRect(town[selectBuild].x - 3, town[selectBuild].y - 3, 26, 12, customYell); // circle next building
             }
             if(shared.action_pushed){
                 moveToBuild = selectBuild;
@@ -178,15 +206,13 @@ void playerTurn(int turn){
             if(shared.move_pushed){
                 prevBuild = selectBuild;
                 selectBuild++;
-
-                while(town[selectBuild].team != turn){ // make sure selected building is under player control
-                    selectBuild++;
-                    if(selectBuild >= numBuilds) selectBuild = startBuild;
-                }
-
-                tft.drawRect(town[selectBuild].x - 3, town[selectBuild].y - 3, 26, 12, customYell); // circle next building
+                    while(town[selectBuild].team != turn){ // make sure selected building is under player control
+                        selectBuild++;
+                        if(selectBuild >= numBuilds) selectBuild = 0;
+                    }
                 tft.drawRect(town[prevBuild].x - 3, town[prevBuild].y - 3, 26, 12, backgroundColor); // decircle previous building
-      
+                tft.drawRect(town[selectBuild].x - 3, town[selectBuild].y - 3, 26, 12, customYell); // circle next building
+                
             }
             if(shared.select_pushed){
                 if(town[selectBuild].selected == true){
@@ -198,15 +224,27 @@ void playerTurn(int turn){
                     tft.drawRect(town[selectBuild].x - 5, town[selectBuild].y - 5, 30, 16, customWhite); // select building
                 }
 
+
             }
             if(shared.action_pushed){
+                Serial.println("N");
+                Serial.flush();
+                shared.readData = true; // make sure server got the data before sending more
+                while(shared.readData) read_line();
                 partOfTurn = 1;
-                delay(100); // avoid double presses
             }
         }
     }
 }
 
+void resetTown(){
+  for(int i = 0; i < numBuilds; i++){
+    town[i].team = 0;
+    town[i].x = 0;
+    town[i].y = 0;
+    town[i].selected = 0;
+  }
+}
 
 void sendData(){
     for(int i = 0; i < numBuilds; i++){
@@ -218,13 +256,13 @@ void sendData(){
             while(shared.readData) read_line();
         }
     }
-    if(moveToBuild){
-        Serial.print("T ");
-        Serial.println(moveToBuild);
-        Serial.flush();
-        shared.readData = true; // make sure server got the data before sending more
-        while(shared.readData) read_line();
-    }
+    resetTown();
+    Serial.print("T ");
+    Serial.println(moveToBuild);
+    Serial.flush();
+    shared.readData = true; // make sure server got the data before sending more
+    while(shared.readData) read_line();
+
     Serial.print("E\n");
     Serial.flush();
     shared.readData = true; // make sure server got the data
