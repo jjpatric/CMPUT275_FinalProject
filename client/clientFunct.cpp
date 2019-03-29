@@ -182,7 +182,7 @@ char updateMapMenu(){
 void process_line() {
   
   if(buffer[0] == 65){ successHS = true; } //checks first letter of message is 'A'
-  if(buffer[0] == 66){ makeBuilding(); } // if first character is 'B'
+  if(buffer[0] == 66){ makeBuilding(); } // if first character is 'B' make buildings
   if(buffer[0] == 67 && shared.curr_mode == shared.STATE2){ // if first character is 'C', then mode was recieved by server
     shared.curr_mode = shared.STATE3;
   }
@@ -190,11 +190,15 @@ void process_line() {
     tft.fillScreen(backgroundColor);
     shared.curr_mode = shared.STATE4;
   }
-  if(buffer[0] == 69 && shared.curr_mode == shared.STATE4){ // if first character is 'E', then stop reading buildings
+  if(buffer[0] == 69 && shared.curr_mode == shared.STATE4){ // if first character is 'E', then stop reading buildings or Units
     shared.readBuildings = false;
+    shared.readUnits = false;
   }
   if(buffer[0] == 70 && shared.curr_mode == shared.STATE4){ // if first character is 'F', then data was recieved by server
     shared.readData = false;
+  }
+  if(buffer[0] == 85 && shared.curr_mode == shared.STATE4){ // if first character is 'U', then make Units
+    makeUnit();
   }
 
   // clear the buffer

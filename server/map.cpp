@@ -9,6 +9,7 @@
 //-----------------------------------
 
 #include "map.h"
+#include "unit.h"
 #include <fstream>
 #include <sstream>
 #include <math.h>
@@ -94,9 +95,35 @@ void buildGraph(int n, unordered_map<int, Building> buildings, WDigraph& dists) 
     }
 }
 
+list<Unit> units;
+int numUnits = 0;
+
 void updateGame(list<int> selBuilds, int moveToBuild, unordered_map<int, Building> buildings, int numBuildings){
 
-    // Unit unit = Unit(); incomplete
+    while(selBuilds.size()){
+        pair<int, int> xyStart (buildings[selBuilds.back()].x, buildings[selBuilds.back()].y);
+        pair<int, int> xyTarget (buildings[moveToBuild].x, buildings[moveToBuild].y);
+        int travDist = sqrt(pow(xyTarget.first - xyStart.first, 2) + pow(xyTarget.second - xyStart.second, 2));
+
+        Unit unit(selBuilds.back(), moveToBuild, xyStart, xyTarget, buildings[selBuilds.back()].control, travDist);
+        if(unit.strength > 0){ // does not create a unit if its strength would be 0
+            units.push_back(unit);
+            numUnits++;
+        }
+
+        selBuilds.pop_back();
+    }
+
+    for(list<Unit>::iterator unitIt = units.begin(); unitIt != units.end(); unitIt++){
+        Unit thisUnit = *unitIt;
+        thisUnit.moveUnit();
+        if(!thisUnit.checkUnit()){
+            unitIt = units.erase(unitIt);
+            numUnits--;
+            if(unitIt != units.begin() && units.size() > 0) --unitIt; // fix iterator if needed
+        }
+    }
+
 
 
 }

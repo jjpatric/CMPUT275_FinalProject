@@ -9,9 +9,18 @@ struct buildings{
   bool selected;
 };
 
+struct units{
+  int x, y;
+  int team;
+};
+
 void drawBuilding(char type, int pop, int teamColor, int xPos, int yPos); // draws buildings on tft display
 
 void makeBuilding(); // parses message from server to construct buildings
+
+void drawUnit(int str, int teamColor, int xPos, int yPos); // draws units on tft display
+
+void makeUnit(); // parses message rom server to construct units
 
 void updateGame(); // updates new game screen
 

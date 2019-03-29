@@ -10,7 +10,7 @@ struct xy_pos { // useful struct
 
 struct shared_vars {
   bool select_pushed, action_pushed, move_pushed;
-  bool readBuildings;
+  bool readBuildings, readUnits;
   bool readData;
 
   // very simple finite state machine:

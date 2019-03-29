@@ -18,8 +18,10 @@ extern int customWhite;
 extern Adafruit_ILI9341 tft;
 
 buildings town[30]; // max number of buildings is 30
+units armys[100]; // unlikely there will be over 100 armys
 int moveToBuild;
 int numBuilds = 0;
+int numArmys = 0;
 
 void drawBuilding(char type, int pop, int teamColor, int xPos, int yPos){
   tft.setFont(); // reset font
@@ -81,6 +83,46 @@ void makeBuilding(){
 }
 
 
+void makeUnit(){
+  int i = 0, count = 0;
+  int strength, team, teamColor, xPos, yPos;
+
+  while(true){
+    if(buffer[i] == 32 && count == 0){
+      strength = atoi(&buffer[i+1]);
+      count++;
+    }
+    else if(buffer[i] == 32 && count == 1){
+      team = atoi(&buffer[i+1]);
+      if (team == 1){ teamColor = customRed; } // team 1
+      else if (team == 2){ teamColor = customBlue; } // team 2
+      count++;
+    }
+    else if(buffer[i] == 32 && count == 2){
+      xPos = atoi(&buffer[i+1]);
+      count++;
+    }
+    else if(buffer[i] == 32 && count == 3){
+      yPos = atoi(&buffer[i+1]);
+      count++;
+    }
+    else if(buffer[i] == 10 && count == 4){
+      break;
+    }
+    i++;
+  }
+
+  armys[numArmys].x = xPos;
+  armys[numArmys].y = yPos;
+  armys[numArmys].team = team;
+  numArmys++;
+  tft.drawCircle(xPos, yPos, 2 + strength/10 , teamColor); // draw unit
+
+  Serial.print("A\n");
+  Serial.flush();
+}
+
+
 void updateGame(){
 
   shared.readBuildings = true;
@@ -89,7 +131,11 @@ void updateGame(){
     read_line();
   }
 
-    // TODO: read and draw new unit positions
+  shared.readUnits = true;
+  while(shared.readUnits){
+    read_line();
+  }
+
 }
 
 

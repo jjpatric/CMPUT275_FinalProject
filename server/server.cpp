@@ -20,7 +20,11 @@
 #include "server_util.h"
 #include "serialport.h"
 #include "map.h"
-#include "unit.h"
+
+extern Unit::Unit(int SB, int TB, pair<int, int> SP, pair<int, int> TP, int CO, int TD):
+startBuilding(SB), targetBuilding(TB), startPos(SP), targetPos(TP), control(CO), travDist(TD);
+extern list<Unit> units;
+extern int numUnits;
 
 WDigraph dists;
 unordered_map<int, Building> buildings;
@@ -63,7 +67,7 @@ void handshake(){
 
 }
 
-void sendBuildings(WDigraph& dists, unordered_map<int, Building> buildings, int n){ // O(n) time
+void sendBuildings(unordered_map<int, Building> buildings, int n){ // O(n) time
     
     for(int i = 0; i < n; i++){ 
       assert(Serial.writeline("B "));
@@ -77,6 +81,30 @@ void sendBuildings(WDigraph& dists, unordered_map<int, Building> buildings, int 
       assert(Serial.writeline(to_string(buildings[i].x)));
       assert(Serial.writeline(" "));
       assert(Serial.writeline(to_string(buildings[i].y)));
+      assert(Serial.writeline(" \n"));
+      
+      string line;
+      while (1){
+        line = Serial.readline(1000);
+        if(line[0] == 'A'){ break; }
+      }
+    }
+
+    assert(Serial.writeline("E\n"));
+}
+
+void sendUnits(list<Unit> units, int n){ // O(n) time
+    
+    for(list<Unit>::iterator unitIt = units.begin(); unitIt != units.end(); unitIt++){ 
+      Unit thisUnit = *unitIt;
+      assert(Serial.writeline("U "));
+      assert(Serial.writeline(to_string(thisUnit.strength)));
+      assert(Serial.writeline(" "));
+      assert(Serial.writeline(to_string(thisUnit.control)));
+      assert(Serial.writeline(" "));
+      assert(Serial.writeline(to_string(thisUnit.currentPos.first)));
+      assert(Serial.writeline(" "));
+      assert(Serial.writeline(to_string(thisUnit.currentPos.second)));
       assert(Serial.writeline(" \n"));
       
       string line;
@@ -154,7 +182,7 @@ int main() {
   // setup for STATE4
   readBuildings(filename, buildings, numBuildings);
   buildGraph(numBuildings, buildings, dists);
-  sendBuildings(dists, buildings, numBuildings);
+  sendBuildings(buildings, numBuildings);
   list<int> selBuilds;
   int moveToBuild;
 
@@ -176,6 +204,8 @@ int main() {
     }
 
     updateGame(selBuilds, moveToBuild, buildings, numBuildings);
+    sendBuildings(buildings, numBuildings);
+    sendUnits(units, numUnits);
   }
   return 0;
 }
