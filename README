@@ -1,0 +1,195 @@
+-------------------------------------
+- Name: Zack Rodgers
+- ID: 1554405
+- 
+- Partner Name: Joshua Patrick
+- CMPUT 275, Winter 2019
+-
+- Final Project: Civilizations Wars
+-------------------------------------
+
+Included Files and Directories:
+    * server/
+    * client/
+    * README
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+server/
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Included Files:
+    * digraph.cpp
+    * digraph.h
+    * Makefile
+    * map.cpp
+    * map.h
+    * map1.txt
+    * map2.txt
+    * map3.txt
+    * mapCust.txt
+    * serialport.cpp
+    * serialport.h
+    * server.cpp
+    * server_util.cpp
+    * server_util.h
+    * test.txt
+    * unit.h
+    * wdigraph.h
+
+Running Instructions:
+    From Terminal in server/ :
+        make
+        ./server
+
+Makefile Targets:
+    * server: builds the server executable
+    * digraph.o: compiles digraph.cpp
+    * server_util.o: compiles server_util.cpp
+    * serialport.o: compiles serialport.cpp
+    * map.o: compiles map.cpp
+    * clean: removes all objects and executables
+
+Notes and Assumptions:
+    Files from eClass used:
+        * digraph.cpp
+        * digraph.h
+        * serialport.cpp
+        * serialport.h
+        * server_util.cpp
+        * server_util.h
+        * wdigraph.h
+
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+client/
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Included Files:
+    * client.cpp
+    * clientFunct.cpp
+    * clientFunct.h
+    * game.cpp
+    * game.h
+    * Makefile
+
+Accessories:
+    * Arduino Mega Board
+    * Adafruit ILI9341 Breakout Board
+    * Pushbutton (x3)
+
+Wiring Instructions:
+    
+    TFT Display:
+
+        Display Pin     Arduino Mega Pin
+        1 GND           BB GND bus
+        2 Vin           BB Vcc (+ive) bus
+
+        4 CLK           Pin 52
+        5 MISO          Pin 50
+        6 MOSI          Pin 51
+        7 CS            Pin 10
+        8 D/C           Pin 9
+
+        19 CCS          Pin 6
+
+    Pushbuttons:
+
+        GND Bus >> Move Button >> Pin 8
+        GND Bus >> Select Button >> Pin 2
+        GND Bus >> Action Button >> Pin 3
+
+Running Instructions:
+    From terminal in client/ :
+    * Connect Arduino to PC
+    * make
+    * make upload
+    * Once the code is uploaded, run the program in server/
+
+Notes and Assumptions:
+    * Bits of code taken from client.cpp from eClass
+    * The initial connection between the server and client
+      might require restarting the arduino or the server
+      program.
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Game Instructions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This game is loosely based off of the flash game that goes by
+the same name, if you would like to get a better understanding
+of the mechanics, it might be a good idea to check out.
+
+Startup:
+    
+    * When the arduino and server program are running, they
+      should perform a TCP handshake to establish connections.
+
+    * If the handshake is successful, you will be taken to the
+      main menu. Select your desired mode by selecting with
+       the move button and confirming with the action button.
+
+    * Once a mode is selected, you will be taken to the map
+      menu, where you can select one of four different maps
+      to play on. Select the desired map by selectind with 
+      the move button and confirming with the action button.
+
+    * The selected map will load and appear on the tft display
+      and the game will start with Player 1.
+
+Gameplay:
+    
+    * The object of the game is to take over all of your
+      opponent's buildings.
+
+    * Each player starts with a set number of buildings
+      determined by the map data(red or blue).  There are 
+      also neutral buildings (white) you can take over to
+       gain an advantage
+
+    * Each building is represented by a colored rectangle on
+      the tft display. Inside the rectangle is a character 
+      representing its maximum size (B = 10, P = 25, H = 50)
+      followed by a positive integer representing the current
+      number of units contained in the building.
+
+    * This game is turn-based. On a given player's turn, they
+      may select any number of buildings they control, then 
+      send half the total units in the selected buildings
+      to a selected target. 
+
+    * The units take a certain number of turns to reach their 
+      destination depending on how far away the building they
+      originate from is.  When a unit reaches its target, it
+      adds or subtracts its total strength from the unit count
+      in the target building.
+
+    * If a building's unit count reaches zero, control of 
+      that building is forfeited to the player who attacked
+      the unit last. The building then shoots up to its 
+      maximum value.
+
+    * Play continues until one player has full control
+      of the map.
+
+Controls:
+    * On your turn, move the cursor using the Move button,
+      the building will have a yellow highlight.
+      You can select and deselect buildings by pressing
+      the Select button while on a highlighted building.
+      A white highlight will appear around the building.
+
+    * You can select as many buildings that you own as you
+      want.  When you're finished, press the Action button
+      to confirm your choices. You then select a building 
+      on the map to send your units to by moving the cursor
+      with the Move button and confirm with the Action button.
+
+    * In short,
+      Phase 1: Select buildings that you want to send units
+      from.
+      Phase 2: Select one building you want to send those
+      units to.
