@@ -24,6 +24,7 @@ struct Building {
     // building type (Barracks(B):10, Outpost(P):25, Stronghold(H):50)
     char type;
     int maxVal = 5; // default value
+    int incVal = 0; // value that units increase each turn
     
     // number of units initially contained in the building
     int units;

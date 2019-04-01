@@ -25,9 +25,18 @@ using namespace std;
 extern SerialPort Serial;
 
 void Building::updateMax() {
-    if (type == 'B') maxVal = 10;
-    else if (type == 'P') maxVal = 25;
-    else if (type == 'H') maxVal = 50;
+    if (type == 'B'){
+        maxVal = 10;
+        incVal = 1;
+    }
+    else if (type == 'P'){
+        maxVal = 25;
+        incVal = 2;
+    }
+    else if (type == 'H'){
+        maxVal = 50;
+        incVal = 3;
+    }
 }
 
 // reads in a text file containing the building data for the map.
@@ -150,41 +159,16 @@ void updateGame(list<int>& selBuilds, int moveToBuild, unordered_map<int, Buildi
 
     for (int i = 0; i < numBuildings; i++)
     {
-        if(buildings[i].type == 'B'){
-            if(buildings[i].control){ // if a player controls the building increase units every turn
-                if(buildings[i].units <= 10){
-                    buildings[i].units += 1;
-                    if(buildings[i].units > 10) buildings[i].units = 10;
-                }
-            }
-            if(buildings[i].units > 10){
-                buildings[i].units -= 2;
-                if(buildings[i].units < 10) buildings[i].units = 10;
+        if(buildings[i].control){ // if a player controls the building increase units every turn
+            if(buildings[i].units <= buildings[i].maxVal){
+                buildings[i].units += buildings[i].incVal;
+                if(buildings[i].units > buildings[i].maxVal) buildings[i].units = buildings[i].maxVal;
             }
         }
-        else if(buildings[i].type == 'P'){
-            if(buildings[i].control){ // if a player controls the building increase units every turn
-                if(buildings[i].units <= 25){
-                    buildings[i].units += 2;
-                    if(buildings[i].units > 25) buildings[i].units = 25;
-                }
-            }
-            if(buildings[i].units > 25){
-                buildings[i].units -= 2;
-                if(buildings[i].units < 25) buildings[i].units = 25;
-            }
+        if(buildings[i].units > buildings[i].maxVal){ // if a buildings population is above its max, slowly decrease
+            buildings[i].units -= 2;
+            if(buildings[i].units < buildings[i].maxVal) buildings[i].units = buildings[i].maxVal;
         }
-        else if(buildings[i].type == 'H'){
-            if(buildings[i].control){ // if a player controls the building increase units every turn
-                if(buildings[i].units <= 50){
-                    buildings[i].units += 3;
-                    if(buildings[i].units > 50) buildings[i].units = 50;
-                }
-            }
-            if(buildings[i].units > 50){
-                buildings[i].units -= 2;
-                if(buildings[i].units < 50) buildings[i].units = 50;
-            }
-        }
+
     }
 }

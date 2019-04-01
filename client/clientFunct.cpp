@@ -49,7 +49,6 @@ int mapNum = 1;
 
 // variables used in drawMainMenu() and updateMainMenu()
 int multiplayerX = 55, multiplayerY = 100, multiplayerWidth = 200, multiplayerHeight = 50;
-int computerX = 55, computerY = 175, computerWidth = 200, computerHeight = 50;
 
 void drawMainMenu(){
   mainSelect = true;
@@ -67,36 +66,16 @@ void drawMainMenu(){
   tft.setCursor(multiplayerX + 20, multiplayerY + 25);
   tft.setTextColor(customBlue);
   tft.print("Multiplayer");
-
-  tft.fillRect(computerX, computerY, computerWidth, computerHeight, customBlue);
-  tft.setCursor(computerX + 20, computerY + 25);
-  tft.setTextColor(customRed);
-  tft.print("Computer");
-
 }
 
 char updateMainMenu(){
-
   if(mainSelect){
-      tft.drawRect(multiplayerX, multiplayerY, multiplayerWidth,
-       multiplayerHeight, customYell); // select multiplayer
-      tft.drawRect(computerX, computerY, computerWidth,
-       computerHeight, backgroundColor); // un-select computer
-  }
-  else{
-      tft.drawRect(computerX, computerY, computerWidth,
-       computerHeight, customYell); // select computer
-      tft.drawRect(multiplayerX, multiplayerY, multiplayerWidth,
-       multiplayerHeight, backgroundColor); // un-select multiplayer
+    tft.drawRect(multiplayerX, multiplayerY, multiplayerWidth,
+     multiplayerHeight, customYell); // select multiplayer
   }
 
   if(shared.action_pushed){
-    if(mainSelect){
-      return 'M';
-    }
-    else{
-      return 'C';
-    }
+    return 'M';
   }
 
   return 'N';
@@ -136,28 +115,28 @@ void drawMapMenu(){
 char updateMapMenu(){
 
   if(mapNum == 1){
-      tft.drawRect(mapOneX, mapOneY, mapOneWidth,
-       mapOneHeight, customYell); // select mapOne
-      tft.drawRect(mapCustX, mapCustY, mapCustWidth,
-       mapCustHeight, backgroundColor); // un-select Custom map
+    tft.drawRect(mapOneX, mapOneY, mapOneWidth,
+     mapOneHeight, customYell); // select mapOne
+    tft.drawRect(mapCustX, mapCustY, mapCustWidth,
+     mapCustHeight, backgroundColor); // un-select Custom map
   }
   else if(mapNum == 2){
-      tft.drawRect(mapTwoX, mapTwoY, mapTwoWidth,
-       mapTwoHeight, customYell); // select mapTwp
-      tft.drawRect(mapOneX, mapOneY, mapOneWidth,
-       mapOneHeight, backgroundColor); // un-select mapOne
+    tft.drawRect(mapTwoX, mapTwoY, mapTwoWidth,
+     mapTwoHeight, customYell); // select mapTwp
+    tft.drawRect(mapOneX, mapOneY, mapOneWidth,
+     mapOneHeight, backgroundColor); // un-select mapOne
   }
   else if(mapNum == 3){
-      tft.drawRect(mapThreeX, mapThreeY, mapThreeWidth,
-       mapThreeHeight, customYell); // select mapThree
-      tft.drawRect(mapTwoX, mapTwoY, mapTwoWidth,
-       mapTwoHeight, backgroundColor); // un-select mapTwo
+    tft.drawRect(mapThreeX, mapThreeY, mapThreeWidth,
+     mapThreeHeight, customYell); // select mapThree
+    tft.drawRect(mapTwoX, mapTwoY, mapTwoWidth,
+     mapTwoHeight, backgroundColor); // un-select mapTwo
   }
   else if(mapNum == 4){
-      tft.drawRect(mapCustX, mapCustY, mapCustWidth,
-       mapCustHeight, customYell); // select custom Map
-      tft.drawRect(mapThreeX, mapThreeY, mapThreeWidth,
-       mapThreeHeight, backgroundColor); // un-select map Three
+    tft.drawRect(mapCustX, mapCustY, mapCustWidth,
+     mapCustHeight, customYell); // select custom Map
+    tft.drawRect(mapThreeX, mapThreeY, mapThreeWidth,
+     mapThreeHeight, backgroundColor); // un-select map Three
   }
 
   if(shared.action_pushed){
@@ -224,9 +203,9 @@ void read_line() {
       // add character to buffer, provided that we don't overflow.
       // drop any excess characters.
       if ( buf_len < buf_size-1 ) {
-          buffer[buf_len] = in_char;
-          buf_len++;
-          buffer[buf_len] = 0;
+        buffer[buf_len] = in_char;
+        buf_len++;
+        buffer[buf_len] = 0;
       }
     }
   }
@@ -234,27 +213,30 @@ void read_line() {
 
 
 void process_input(){
-    shared.action_pushed = (digitalRead(action_pin) == LOW);
-    if(shared.action_pushed) {
-        while(digitalRead(action_pin) == LOW){} // wait until button is released
-        delay(200); // prevent double clicks
-    }
-    shared.select_pushed = (digitalRead(select_pin) == LOW);
-    if(shared.select_pushed) {
-        while(digitalRead(select_pin) == LOW){} // wait until button is released
-        delay(200); // prevent double clicks
-    }
-    shared.move_pushed = (digitalRead(move_pin) == LOW);
-    if(shared.move_pushed) {
-        while(digitalRead(move_pin) == LOW){} // wait until button is released
-        delay(200); // prevent double clicks
-    }
-    
-    if(shared.move_pushed && shared.curr_mode == shared.STATE2) mainSelect = !mainSelect; // if in main menu switch which thing is selected
-    if(shared.move_pushed && shared.curr_mode == shared.STATE3){
-      mapNum++; // if in map menu, switch which thing is selected
-      if(mapNum >= 5){ mapNum = 1; }
-    }
+  shared.action_pushed = (digitalRead(action_pin) == LOW);
+  if(shared.action_pushed) {
+    while(digitalRead(action_pin) == LOW){} // wait until button is released
+    delay(120); // prevent double clicks
+  while(digitalRead(action_pin) == LOW){} // wait until button is released
+  }
+  shared.select_pushed = (digitalRead(select_pin) == LOW);
+  if(shared.select_pushed) {
+    while(digitalRead(select_pin) == LOW){} // wait until button is released
+    delay(120); // prevent double clicks
+    while(digitalRead(select_pin) == LOW){} // wait until button is released
+  }
+  shared.move_pushed = (digitalRead(move_pin) == LOW);
+  if(shared.move_pushed) {
+    while(digitalRead(move_pin) == LOW){} // wait until button is released
+    delay(120); // prevent double clicks
+    while(digitalRead(move_pin) == LOW){} // wait until button is released
+  }
+  
+  if(shared.move_pushed && shared.curr_mode == shared.STATE2) mainSelect = !mainSelect; // if in main menu switch which thing is selected
+  if(shared.move_pushed && shared.curr_mode == shared.STATE3){
+    mapNum++; // if in map menu, switch which thing is selected
+    if(mapNum >= 5){ mapNum = 1; }
+  }
 }
 
 

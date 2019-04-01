@@ -97,9 +97,7 @@ void Unit::damageCalc(){
 		buildings[targetBuilding].units -= strength;
 		if(buildings[targetBuilding].units <= 0){
 			if(buildings[targetBuilding].control == 0){
-				if(buildings[targetBuilding].type == 'B') buildings[targetBuilding].units = 10;
-				if(buildings[targetBuilding].type == 'P') buildings[targetBuilding].units = 25;
-				if(buildings[targetBuilding].type == 'H') buildings[targetBuilding].units = 50;
+				buildings[targetBuilding].units = buildings[targetBuilding].maxVal;
 				buildings[targetBuilding].control = control;
 			}
 			else if(buildings[targetBuilding].control > 0){

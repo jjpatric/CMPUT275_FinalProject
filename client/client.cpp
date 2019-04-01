@@ -24,7 +24,7 @@ int main() {
 
   drawMainMenu();
 
-  char modeSelect, mapSelect;
+  char modeSelect, mapSelect; // mode select was designed for if we had time to implement a player vs computer mode
 
   while (shared.curr_mode == shared.STATE2) {
     // clear entries for new state (Idea from eClass)
@@ -38,8 +38,7 @@ int main() {
     Serial.println(modeSelect);
     Serial.flush();
     delay(100);
-    read_line
-    ();
+    read_line();
 
   }
 
