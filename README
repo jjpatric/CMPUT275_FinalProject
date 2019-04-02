@@ -163,8 +163,8 @@ Gameplay:
 
     * If a building's unit count reaches zero, control of 
       that building is forfeited to the player who attacked
-      the unit last. The building then shoots up to its 
-      maximum value.
+      the building last. The building then shoots up to its 
+      maximum value if the building is neutral.
 
     * Play continues until one player has full control
       of the map.
