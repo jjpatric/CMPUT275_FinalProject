@@ -8,10 +8,6 @@
 // Final Project: Civilization Wars
 //--------------------------------------------
 
-/*
- * Routine for drawing an image patch from the SD card to the LCD display.
- */
-
 #include "Adafruit_GFX.h"    // Core graphics library
 #include "Adafruit_ILI9341.h" // Hardware-specific library
 #include <Fonts/FreeMonoBoldOblique12pt7b.h>
@@ -277,7 +273,7 @@ void setup() {
   while(!successHS){
     Serial.println("STATE1");
     Serial.flush();
-    delay(100); // time for server to respond
+    delay(501); // time for server to respond
     read_line();
   }
   Serial.println("STATE2");

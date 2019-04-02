@@ -7,18 +7,19 @@
 //
 // Final Project: Civilization Wars
 //--------------------------------------------
+
 #ifndef _GAME_H_
 #define _GAME_H_
 
 using namespace std;
 
-struct buildings{
+struct buildings{ // store simplified building data
   int x, y;
   int team;
   bool selected;
 };
 
-struct units{
+struct units{ // store simplified unit data
   int x, y;
   int team;
 };

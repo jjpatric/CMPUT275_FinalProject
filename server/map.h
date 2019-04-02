@@ -1,4 +1,4 @@
-//--------------------------------------------
+//-----------------------------------
 // Name: Zack Rodgers
 // ID: 1554405
 //
@@ -6,7 +6,7 @@
 // CMPUT 275, Winter 2019
 //
 // Final Project: Civilization Wars
-//--------------------------------------------
+//-----------------------------------
 
 #ifndef _MAP_H_
 #define _MAP_H_
@@ -52,6 +52,7 @@ long long distance(int x1, int y1, int x2, int y2);
 // stores the distances between each building for every building
 void buildGraph(int n, unordered_map<int, Building> buildings, WDigraph& dists);
 
+// updates all game data values on servers side and send over new unit data to client
 void updateGame(list<int>& selBuilds, int moveToBuild, unordered_map<int, Building>& buildings, int numBuildings);
 
 #endif

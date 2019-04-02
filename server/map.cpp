@@ -1,4 +1,4 @@
-//--------------------------------------------
+//-----------------------------------
 // Name: Zack Rodgers
 // ID: 1554405
 //
@@ -6,7 +6,7 @@
 // CMPUT 275, Winter 2019
 //
 // Final Project: Civilization Wars
-//--------------------------------------------
+//-----------------------------------
 
 #include "map.h"
 #include "unit.h"
@@ -14,26 +14,26 @@
 #include <fstream>
 #include <cstring>
 #include <sstream>
-#include <math.h>
+#include <math.h> // abs()
 #include <iostream>
-#include <cassert>
+#include <cassert> // assert
 #include <string>
 #include <stdlib.h>
 
 using namespace std;
 
-extern SerialPort Serial;
+extern SerialPort Serial; // Serial is defined in server.cpp
 
 void Building::updateMax() {
-    if (type == 'B'){
+    if (type == 'B'){ // Barracks
         maxVal = 10;
         incVal = 1;
     }
-    else if (type == 'P'){
+    else if (type == 'P'){ // OutPost
         maxVal = 25;
         incVal = 2;
     }
-    else if (type == 'H'){
+    else if (type == 'H'){ // StrongHold
         maxVal = 50;
         incVal = 3;
     }
@@ -116,7 +116,7 @@ list<Unit> units;
 void updateGame(list<int>& selBuilds, int moveToBuild, unordered_map<int, Building>& buildings, int numBuildings){
 
     while(selBuilds.size()){ // create new units
-        if(selBuilds.back() == moveToBuild){}
+        if(selBuilds.back() == moveToBuild){} // does not create unit the selected building is the same as target building
         else{
             pair<int, int> xyStart (buildings[selBuilds.back()].x, buildings[selBuilds.back()].y);
             pair<int, int> xyTarget (buildings[moveToBuild].x, buildings[moveToBuild].y);
@@ -124,20 +124,20 @@ void updateGame(list<int>& selBuilds, int moveToBuild, unordered_map<int, Buildi
 
             Unit unit(selBuilds.back(), moveToBuild, xyStart, xyTarget, buildings[selBuilds.back()].control, travDist);
             if(unit.strength > 0){ // does not create a unit if its strength would be 0
-                units.push_back(unit);
+                units.push_back(unit); // add unit to list of all units
             }
         }
         selBuilds.pop_back();
     }
 
     for(list<Unit>::iterator unitIt = units.begin(); unitIt != units.end(); unitIt++){ // update Unit position and delete if needed
-        Unit& thisUnit = *unitIt;
-        thisUnit.moveUnit();
-        if(!thisUnit.checkUnit()){
-            unitIt = units.erase(unitIt);
+        Unit& thisUnit = *unitIt; // pointer to the current unit
+        thisUnit.moveUnit(); // update units position
+        if(!thisUnit.checkUnit()){ // check if unit has completed its travels
+            unitIt = units.erase(unitIt); // erase unit from list
             if(unitIt != units.begin() && units.size() > 0) --unitIt; // fix iterator if needed
         }
-        else{
+        else{ // send updated unit data
             assert(Serial.writeline("U "));
             assert(Serial.writeline(to_string(thisUnit.strength)));
             assert(Serial.writeline(" "));
@@ -149,16 +149,15 @@ void updateGame(list<int>& selBuilds, int moveToBuild, unordered_map<int, Buildi
             assert(Serial.writeline(" \n"));
 
             string line;
-            while (1){
+            while (1){ // wait for acknowledgement
                 line = Serial.readline(1000);
                 if(line[0] == 'A'){ break; }
             }
         }
     }
-    assert(Serial.writeline("E\n"));
+    assert(Serial.writeline("E\n")); // end transmission
 
-    for (int i = 0; i < numBuildings; i++)
-    {
+    for (int i = 0; i < numBuildings; i++){ // update building values
         if(buildings[i].control){ // if a player controls the building increase units every turn
             if(buildings[i].units <= buildings[i].maxVal){
                 buildings[i].units += buildings[i].incVal;

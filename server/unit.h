@@ -1,4 +1,4 @@
-//--------------------------------------------
+//-----------------------------------
 // Name: Zack Rodgers
 // ID: 1554405
 //
@@ -6,7 +6,8 @@
 // CMPUT 275, Winter 2019
 //
 // Final Project: Civilization Wars
-//--------------------------------------------
+//-----------------------------------
+
 #ifndef _UNIT_H_
 #define _UNIT_H_
 
@@ -53,7 +54,7 @@ public:
 	list<Unit>::iterator myIt;
 
 	// Unit constructor: parameters are in the order in which they appear in private.
-	// Constructor also calculates the values for turns, moveFactors, and currentPos and strength.
+	// Constructor also calculates the values for turns, moveFactors, strength, and currentPos.
 	Unit(int SB, int TB, pair<int, int> SP, pair<int, int> TP, int CO, int TD);
 	
 	// update the unit's current position using its moveFactors
@@ -75,56 +76,56 @@ public:
 
 Unit::Unit(int SB, int TB, pair<int, int> SP, pair<int, int> TP, int CO, int TD):
 startBuilding(SB), targetBuilding(TB), startPos(SP), targetPos(TP), control(CO), travDist(TD){
-	init();
-	turns = travDist / 100;
-	if(travDist % 100 > 0) turns++;
-	currentPos = startPos;
+	init(); // initialise starting data
+	turns = travDist / 100; // calculate number of turns required to reach target building
+	if(travDist % 100 > 0) turns++; // add extra turn if distance is not divisible by 100 exactly
+	currentPos = startPos; // set current position to start position
 
-	moveFactors.first = (targetPos.first - startPos.first) / turns;
-	moveFactors.second = (targetPos.second - startPos.second) / turns;
+	moveFactors.first = (targetPos.first - startPos.first) / turns; // calculate move factors
+	moveFactors.second = (targetPos.second - startPos.second) / turns; // used to calculate postion after each turn
 }
 
 
-void Unit::moveUnit(){
+void Unit::moveUnit(){ // updates current position and turns remaining
 	currentPos.first += moveFactors.first;
 	currentPos.second += moveFactors.second;
 	turns--;
 }
 
-bool Unit::checkUnit(){
+
+bool Unit::checkUnit(){ // check if unit has reached its target
 	if(turns <= 0){
-		damageCalc();
-		return false;
+		damageCalc(); // do damage to target building
+		return false; // destroy this unit
 	}
-	return true;
+	return true; // unit is still alive
 }
 
-void Unit::damageCalc(){
-	if(buildings[targetBuilding].control == control) buildings[targetBuilding].units += strength;
 
-	if(buildings[targetBuilding].control != control){
-		buildings[targetBuilding].units -= strength;
-		if(buildings[targetBuilding].units <= 0){
-			if(buildings[targetBuilding].control == 0){
+void Unit::damageCalc(){ // do damage to target building
+	if(buildings[targetBuilding].control == control) buildings[targetBuilding].units += strength; // if it is your own building increase health
+
+	if(buildings[targetBuilding].control != control){ // if it is enemy building 
+		buildings[targetBuilding].units -= strength; // do damage
+		if(buildings[targetBuilding].units <= 0){ // if enemy buildings health is below 0
+			if(buildings[targetBuilding].control == 0){ // if it was a neutral building fill up to max population
 				buildings[targetBuilding].units = buildings[targetBuilding].maxVal;
 				buildings[targetBuilding].control = control;
 			}
-			else if(buildings[targetBuilding].control > 0){
+			else if(buildings[targetBuilding].control > 0){ // if it was other players building just fill with number of units left over
 				buildings[targetBuilding].control = control;
 				buildings[targetBuilding].units = abs(buildings[targetBuilding].units);
 			}
 		}
 	}
-
 }
 
 // called in constructor
-void Unit::init(){
+void Unit::init(){ // take half of units from selected building
 	if(buildings[startBuilding].units > 1){
 		strength = buildings[startBuilding].units / 2;
 		buildings[startBuilding].units -= strength;
 	}
-
 }
 
 
