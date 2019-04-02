@@ -1,12 +1,12 @@
-//-----------------------------------
+//--------------------------------------------
 // Name: Zack Rodgers
 // ID: 1554405
 //
 // Partner Name: Joshua Patrick
-// CMPUT 275, Fall 2019
+// CMPUT 275, Winter 2019
 //
 // Final Project: Civilization Wars
-//-----------------------------------
+//--------------------------------------------
 
 #include "map.h"
 #include "unit.h"

@@ -31,9 +31,6 @@ Included Files:
     * serialport.cpp
     * serialport.h
     * server.cpp
-    * server_util.cpp
-    * server_util.h
-    * test.txt
     * unit.h
     * wdigraph.h
 
@@ -45,7 +42,6 @@ Running Instructions:
 Makefile Targets:
     * server: builds the server executable
     * digraph.o: compiles digraph.cpp
-    * server_util.o: compiles server_util.cpp
     * serialport.o: compiles serialport.cpp
     * map.o: compiles map.cpp
     * clean: removes all objects and executables
@@ -56,8 +52,6 @@ Notes and Assumptions:
         * digraph.h
         * serialport.cpp
         * serialport.h
-        * server_util.cpp
-        * server_util.h
         * wdigraph.h
 
 

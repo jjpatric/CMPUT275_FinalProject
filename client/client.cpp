@@ -5,7 +5,7 @@
 // Partner Name: Joshua Patrick
 // CMPUT 275, Winter 2019
 //
-// Final Project
+// Final Project: Civilization Wars
 //--------------------------------------------
 
 #include <Arduino.h>

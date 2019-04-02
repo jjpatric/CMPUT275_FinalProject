@@ -5,7 +5,7 @@
 // Partner Name: Joshua Patrick
 // CMPUT 275, Winter 2019
 //
-// Final Project
+// Final Project: Civilization Wars
 //--------------------------------------------
 
 #include <iostream>
@@ -17,7 +17,6 @@
 #include <utility> //for pair
 #include <stdlib.h>
 #include "wdigraph.h"
-#include "server_util.h"
 #include "map.h"
 
 WDigraph dists;

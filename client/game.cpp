@@ -1,4 +1,12 @@
-
+//--------------------------------------------
+// Name: Zack Rodgers
+// ID: 1554405
+//
+// Partner Name: Joshua Patrick
+// CMPUT 275, Winter 2019
+//
+// Final Project: Civilization Wars
+//--------------------------------------------
 #include "Adafruit_GFX.h"    // Core graphics library
 #include "Adafruit_ILI9341.h" // Hardware-specific library
 #include <SPI.h>

@@ -1,3 +1,12 @@
+//--------------------------------------------
+// Name: Zack Rodgers
+// ID: 1554405
+//
+// Partner Name: Joshua Patrick
+// CMPUT 275, Winter 2019
+//
+// Final Project: Civilization Wars
+//--------------------------------------------
 #ifndef _UNIT_H_
 #define _UNIT_H_
 
@@ -44,7 +53,7 @@ public:
 	list<Unit>::iterator myIt;
 
 	// Unit constructor: parameters are in the order in which they appear in private.
-	// Constructor also calculates the values for turns, moveFactors, and currentPos.
+	// Constructor also calculates the values for turns, moveFactors, and currentPos and strength.
 	Unit(int SB, int TB, pair<int, int> SP, pair<int, int> TP, int CO, int TD);
 	
 	// update the unit's current position using its moveFactors
